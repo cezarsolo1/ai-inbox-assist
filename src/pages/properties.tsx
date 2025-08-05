@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Building2, MapPin, Users, Edit, Wifi, Trash, Car, Info } from "lucide-react";
+import { Building2, MapPin, Users, Edit, Wifi, Trash, Car, Info, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ export default function PropertiesPage() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editData, setEditData] = useState<Property | null>(null);
+  const [isAddingProperty, setIsAddingProperty] = useState(false);
 
   const handleEditProperty = (property: Property) => {
     setSelectedProperty(property);
@@ -23,17 +24,25 @@ export default function PropertiesPage() {
 
   const handleSaveProperty = () => {
     if (editData) {
-      setProperties(properties.map(p => 
-        p.id === editData.id ? editData : p
-      ));
-      setIsEditMode(false);
-      setSelectedProperty(editData);
+      if (isAddingProperty) {
+        handleSaveNewProperty();
+      } else {
+        setProperties(properties.map(p => 
+          p.id === editData.id ? editData : p
+        ));
+        setIsEditMode(false);
+        setSelectedProperty(editData);
+      }
     }
   };
 
   const handleCancelEdit = () => {
-    setIsEditMode(false);
-    setEditData(null);
+    if (isAddingProperty) {
+      handleCancelAddProperty();
+    } else {
+      setIsEditMode(false);
+      setEditData(null);
+    }
   };
 
   const updateEditData = (field: string, value: any) => {
@@ -53,12 +62,55 @@ export default function PropertiesPage() {
     }
   };
 
+  const handleAddProperty = () => {
+    const newProperty: Property = {
+      id: `property-${Date.now()}`,
+      name: "",
+      address: "",
+      description: "",
+      tenants: [],
+      rules: {
+        petPolicy: "",
+        trashSchedule: "",
+        wifiNetwork: "",
+        wifiPassword: "",
+        parkingRules: ""
+      }
+    };
+    setEditData(newProperty);
+    setIsEditMode(true);
+    setIsAddingProperty(true);
+    setSelectedProperty(null);
+  };
+
+  const handleSaveNewProperty = () => {
+    if (editData && editData.name.trim()) {
+      setProperties([...properties, editData]);
+      setSelectedProperty(editData);
+      setIsEditMode(false);
+      setIsAddingProperty(false);
+      setEditData(null);
+    }
+  };
+
+  const handleCancelAddProperty = () => {
+    setIsEditMode(false);
+    setIsAddingProperty(false);
+    setEditData(null);
+  };
+
   return (
     <div className="h-full flex">
       {/* Properties List */}
       <div className="w-1/2 border-r border-border bg-gradient-card">
         <div className="p-6 border-b border-border bg-card">
-          <h1 className="text-2xl font-semibold mb-2">Properties</h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-2xl font-semibold">Properties</h1>
+            <Button onClick={() => handleAddProperty()}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add New Property
+            </Button>
+          </div>
           <p className="text-muted-foreground">Manage your property portfolio</p>
         </div>
         
@@ -140,14 +192,16 @@ export default function PropertiesPage() {
               <div className="p-6 space-y-6">
                 <div className="flex justify-end gap-2 mb-4">
                   <Button variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-                  <Button onClick={handleSaveProperty}>Save Changes</Button>
+                  <Button onClick={handleSaveProperty} disabled={!editData?.name.trim()}>
+                    {isAddingProperty ? "Add Property" : "Save Changes"}
+                  </Button>
                 </div>
                 
                 <div className="grid gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Basic Information</CardTitle>
-                    </CardHeader>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">{isAddingProperty ? "Add New Property" : "Basic Information"}</CardTitle>
+                      </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
                         <label className="text-sm font-medium mb-2 block">Property Name</label>

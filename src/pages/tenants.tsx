@@ -28,6 +28,7 @@ export default function TenantsPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editData, setEditData] = useState<Tenant | null>(null);
   const [newNote, setNewNote] = useState("");
+  const [isAddingTenant, setIsAddingTenant] = useState(false);
 
   const handleEditTenant = (tenant: Tenant) => {
     setSelectedTenant(tenant);
@@ -37,17 +38,25 @@ export default function TenantsPage() {
 
   const handleSaveTenant = () => {
     if (editData) {
-      setTenants(tenants.map(t => 
-        t.id === editData.id ? editData : t
-      ));
-      setIsEditMode(false);
-      setSelectedTenant(editData);
+      if (isAddingTenant) {
+        handleSaveNewTenant();
+      } else {
+        setTenants(tenants.map(t => 
+          t.id === editData.id ? editData : t
+        ));
+        setIsEditMode(false);
+        setSelectedTenant(editData);
+      }
     }
   };
 
   const handleCancelEdit = () => {
-    setIsEditMode(false);
-    setEditData(null);
+    if (isAddingTenant) {
+      handleCancelAddTenant();
+    } else {
+      setIsEditMode(false);
+      setEditData(null);
+    }
   };
 
   const handleAddNote = () => {
@@ -76,6 +85,43 @@ export default function TenantsPage() {
     if (editData) {
       setEditData({ ...editData, [field]: value });
     }
+  };
+
+  const handleAddTenant = () => {
+    const newTenant: Tenant = {
+      id: `tenant-${Date.now()}`,
+      name: "",
+      email: "",
+      phone: "",
+      propertyId: "",
+      propertyName: "",
+      unitNumber: "",
+      rentAmount: 0,
+      leaseStart: new Date(),
+      leaseEnd: new Date(),
+      pets: "",
+      notes: []
+    };
+    setEditData(newTenant);
+    setIsEditMode(true);
+    setIsAddingTenant(true);
+    setSelectedTenant(null);
+  };
+
+  const handleSaveNewTenant = () => {
+    if (editData && editData.name.trim()) {
+      setTenants([...tenants, editData]);
+      setSelectedTenant(editData);
+      setIsEditMode(false);
+      setIsAddingTenant(false);
+      setEditData(null);
+    }
+  };
+
+  const handleCancelAddTenant = () => {
+    setIsEditMode(false);
+    setIsAddingTenant(false);
+    setEditData(null);
   };
 
   // If we have an ID from the URL and found a tenant, show tenant detail view
@@ -115,12 +161,14 @@ export default function TenantsPage() {
             <div className="space-y-6">
               <div className="flex justify-end gap-2 mb-4">
                 <Button variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-                <Button onClick={handleSaveTenant}>Save Changes</Button>
+                <Button onClick={handleSaveTenant} disabled={!editData?.name.trim()}>
+                  {isAddingTenant ? "Add Tenant" : "Save Changes"}
+                </Button>
               </div>
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Tenant Information</CardTitle>
+                  <CardTitle>{isAddingTenant ? "Add New Tenant" : "Edit Tenant Information"}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -331,7 +379,13 @@ export default function TenantsPage() {
       {/* Tenants List */}
       <div className="w-1/2 border-r border-border bg-gradient-card">
         <div className="p-6 border-b border-border bg-card">
-          <h1 className="text-2xl font-semibold mb-2">Tenants</h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-2xl font-semibold">Tenants</h1>
+            <Button onClick={() => handleAddTenant()}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add New Tenant
+            </Button>
+          </div>
           <p className="text-muted-foreground">Manage tenant profiles and information</p>
         </div>
         
