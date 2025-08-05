@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Inbox, MessageSquare, FileText, Building2, Users, Settings } from "lucide-react";
+import { Inbox, MessageSquare, FileText, Building2, Users, Settings, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const navigation = [
   { name: "Inbox", href: "/", icon: Inbox },
@@ -13,6 +14,7 @@ const navigation = [
 
 export function Sidebar() {
   const location = useLocation();
+  const { signOut, user } = useAuth();
 
   return (
     <div className="flex h-full w-64 flex-col bg-gradient-sidebar border-r border-sidebar-border">
@@ -53,7 +55,19 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-sidebar-border">
+      <div className="p-4 border-t border-sidebar-border space-y-3">
+        <div className="px-3 py-2 bg-muted/30 rounded-md">
+          <div className="text-xs text-muted-foreground">Signed in as</div>
+          <div className="text-sm text-sidebar-foreground truncate">{user?.email}</div>
+        </div>
+        <Button
+          variant="ghost"
+          onClick={signOut}
+          className="w-full justify-start text-muted-foreground hover:text-accent-foreground h-9"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </Button>
         <div className="text-xs text-muted-foreground text-center">
           Version 1.0.0 MVP
         </div>
