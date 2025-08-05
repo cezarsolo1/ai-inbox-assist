@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Building2, MapPin, Users, Edit, Wifi, Trash, Car, Info, Plus } from "lucide-react";
+import { Building2, MapPin, Users, Edit, Wifi, Trash, Car, Info, Plus, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { mockProperties, type Property } from "@/lib/mock-data";
 import { Link } from "react-router-dom";
 
@@ -81,6 +82,16 @@ export default function PropertiesPage() {
     setIsEditMode(true);
     setIsAddingProperty(true);
     setSelectedProperty(null);
+  };
+
+  const handleDeleteProperty = (propertyId: string) => {
+    setProperties(properties.filter(p => p.id !== propertyId));
+    if (selectedProperty?.id === propertyId) {
+      setSelectedProperty(null);
+    }
+    setIsEditMode(false);
+    setIsAddingProperty(false);
+    setEditData(null);
   };
 
   const handleSaveNewProperty = () => {
@@ -175,10 +186,34 @@ export default function PropertiesPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">{selectedProperty.name}</h2>
                 {!isEditMode && (
-                  <Button onClick={() => handleEditProperty(selectedProperty)}>
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Property
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleEditProperty(selectedProperty)}>
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit Property
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Property
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Property</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete {selectedProperty.name}? This action cannot be undone and will also remove all associated data.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDeleteProperty(selectedProperty.id)}>
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">

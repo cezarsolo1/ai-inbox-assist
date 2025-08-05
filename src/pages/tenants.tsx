@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { User, Mail, Phone, Building2, Calendar, DollarSign, PawPrint, Plus, Edit, ArrowLeft } from "lucide-react";
+import { User, Mail, Phone, Building2, Calendar, DollarSign, PawPrint, Plus, Edit, ArrowLeft, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { mockTenants, type Tenant, type TenantNote } from "@/lib/mock-data";
 
 const formatDate = (date: Date) => {
@@ -108,6 +109,16 @@ export default function TenantsPage() {
     setSelectedTenant(null);
   };
 
+  const handleDeleteTenant = (tenantId: string) => {
+    setTenants(tenants.filter(t => t.id !== tenantId));
+    if (selectedTenant?.id === tenantId) {
+      setSelectedTenant(null);
+    }
+    setIsEditMode(false);
+    setIsAddingTenant(false);
+    setEditData(null);
+  };
+
   const handleSaveNewTenant = () => {
     if (editData && editData.name.trim()) {
       setTenants([...tenants, editData]);
@@ -148,10 +159,34 @@ export default function TenantsPage() {
             </div>
           </div>
           {!isEditMode && (
-            <Button onClick={() => handleEditTenant(selectedTenant)}>
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Tenant
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => handleEditTenant(selectedTenant)}>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Tenant
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Tenant
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Tenant</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete {selectedTenant.name}? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleDeleteTenant(selectedTenant.id)}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           )}
         </div>
 
@@ -453,6 +488,27 @@ export default function TenantsPage() {
                     <Edit className="w-4 h-4 mr-2" />
                     Edit
                   </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Tenant</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete {selectedTenant.name}? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteTenant(selectedTenant.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
