@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Send, Sparkles, FileText, Clock, User } from "lucide-react";
+import { ArrowLeft, Send, Sparkles, FileText, Clock, User, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { mockConversations, mockTemplates, type Message } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const getChannelIcon = (channel: string) => {
   const icons = {
@@ -40,6 +42,8 @@ export default function ConversationPage() {
   const { id } = useParams<{ id: string }>();
   const [replyText, setReplyText] = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
+  const [isEmailSending, setIsEmailSending] = useState(false);
+  const { toast } = useToast();
   
   const conversation = mockConversations.find(conv => conv.id === id);
   
@@ -82,7 +86,44 @@ export default function ConversationPage() {
     // In real app, this would send the message and update the conversation
     console.log("Sending reply:", replyText);
     setReplyText("");
-    // Show success toast
+    toast({
+      title: "Message sent",
+      description: "Your reply has been sent successfully.",
+    });
+  };
+
+  const handleSendEmail = async () => {
+    if (!replyText.trim()) return;
+    
+    setIsEmailSending(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          to: "solovastrucezar@gmail.com", // You can make this dynamic based on conversation
+          subject: `Message from Property Management - ${conversation.propertyName}`,
+          body: `Tenant: ${conversation.tenantName}\nProperty: ${conversation.propertyName}\n\nMessage:\n${replyText}`
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email sent successfully",
+        description: "Your message has been sent via email.",
+      });
+      
+      setReplyText("");
+    } catch (error: any) {
+      console.error('Failed to send email:', error);
+      toast({
+        title: "Failed to send email",
+        description: error.message || "There was an error sending the email.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEmailSending(false);
+    }
   };
 
   return (
@@ -221,13 +262,23 @@ export default function ConversationPage() {
               }
             }}
           />
-          <Button
-            onClick={handleSendReply}
-            disabled={!replyText.trim()}
-            className="self-end"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
+          <div className="flex flex-col gap-2 self-end">
+            <Button
+              onClick={handleSendEmail}
+              disabled={!replyText.trim() || isEmailSending}
+              variant="outline"
+              size="sm"
+            >
+              <Mail className="w-4 h-4" />
+              {isEmailSending ? "Sending..." : "Email"}
+            </Button>
+            <Button
+              onClick={handleSendReply}
+              disabled={!replyText.trim()}
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
         <p className="text-xs text-muted-foreground mt-2">
           Press Enter to send, Shift+Enter for new line
