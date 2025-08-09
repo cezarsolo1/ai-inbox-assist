@@ -1,12 +1,95 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const IMAP_SERVER = "imap.gmail.com";
+const EMAIL_ACCOUNT = "solovastrucezar@gmail.com";
+const APP_PASSWORD = "ybelyvxdswmydvlv";
+
+function extractLatestReply(body: string): string {
+  /**
+   * Removes quoted text and keeps only the latest reply.
+   */
+  const separators = [
+    "\nOn ",                       
+    "\n-----Original Message-----", 
+    "\nFrom:"                       
+  ];
+  
+  for (const sep of separators) {
+    if (body.includes(sep)) {
+      body = body.split(sep)[0];
+      break;
+    }
+  }
+  
+  // Remove quoted lines
+  const lines = body.split('\n').filter(line => !line.trim().startsWith(">"));
+  return lines.join('\n').trim();
+}
+
+async function readLastEmailBody(): Promise<string> {
+  try {
+    // Connect to IMAP server using TLS
+    const conn = await Deno.connectTls({
+      hostname: IMAP_SERVER,
+      port: 993,
+    });
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    // Helper function to send command and read response
+    async function sendCommand(command: string): Promise<string> {
+      await conn.write(encoder.encode(command + '\r\n'));
+      const buffer = new Uint8Array(4096);
+      const n = await conn.read(buffer);
+      return decoder.decode(buffer.subarray(0, n || 0));
+    }
+
+    // Login sequence
+    await sendCommand(`A001 LOGIN ${EMAIL_ACCOUNT} ${APP_PASSWORD}`);
+    
+    // Select inbox
+    await sendCommand('A002 SELECT INBOX');
+    
+    // Search for all messages
+    const searchResponse = await sendCommand('A003 SEARCH ALL');
+    
+    // Extract message IDs from search response
+    const messageIds = searchResponse.match(/\* SEARCH (.+)/)?.[1]?.trim().split(' ') || [];
+    
+    if (messageIds.length === 0) {
+      conn.close();
+      return "";
+    }
+    
+    // Get the last message ID
+    const lastMessageId = messageIds[messageIds.length - 1];
+    
+    // Fetch the last email
+    const fetchResponse = await sendCommand(`A004 FETCH ${lastMessageId} (BODY[TEXT])`);
+    
+    // Extract body content from IMAP response
+    const bodyMatch = fetchResponse.match(/BODY\[TEXT\]\s*{[^}]+}\s*(.+?)(?=\r?\nA004)/s);
+    
+    conn.close();
+    
+    if (bodyMatch && bodyMatch[1]) {
+      const body = bodyMatch[1].trim();
+      return extractLatestReply(body);
+    }
+    
+    return "";
+    
+  } catch (error) {
+    console.error('Error reading email:', error);
+    return "";
+  }
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -15,45 +98,17 @@ serve(async (req) => {
   }
 
   try {
-    const { conversation, messages } = await req.json();
-
-    // Build conversation context
-    const conversationHistory = messages.map((msg: any) => {
-      const role = msg.sender === 'me' ? 'Property Manager' : conversation.tenantName;
-      return `${role}: ${msg.content}`;
-    }).join('\n');
-
-    const systemPrompt = `You are ${conversation.tenantName}, a tenant at ${conversation.propertyName}. 
-    You are communicating with your property manager. Respond naturally as a tenant would, keeping your responses:
-    - Conversational and friendly
-    - Relevant to property/rental matters
-    - Appropriate length (not too long)
-    - Realistic for a tenant-property manager relationship
+    console.log('Attempting to read latest email...');
     
-    Property context: ${conversation.propertyName}
-    Your name: ${conversation.tenantName}`;
+    const emailBody = await readLastEmailBody();
+    
+    if (!emailBody) {
+      throw new Error('No email content found');
+    }
+    
+    console.log('Email body extracted:', emailBody.substring(0, 100) + '...');
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Based on this conversation history, generate a realistic response from the tenant:\n\n${conversationHistory}` }
-        ],
-        temperature: 0.7,
-        max_tokens: 200,
-      }),
-    });
-
-    const data = await response.json();
-    const generatedReply = data.choices[0].message.content;
-
-    return new Response(JSON.stringify({ reply: generatedReply }), {
+    return new Response(JSON.stringify({ reply: emailBody }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
