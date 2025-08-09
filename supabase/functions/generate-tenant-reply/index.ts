@@ -5,9 +5,12 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const IMAP_SERVER = "imap.gmail.com";
+// Gmail API configuration
+const GMAIL_API_URL = 'https://gmail.googleapis.com/gmail/v1';
 const EMAIL_ACCOUNT = "solovastrucezar@gmail.com";
-const APP_PASSWORD = "ybelyvxdswmydvlv";
+
+// You'll need to get this from Google Cloud Console
+const GMAIL_ACCESS_TOKEN = Deno.env.get('GMAIL_ACCESS_TOKEN');
 
 function extractLatestReply(body: string): string {
   /**
@@ -16,7 +19,9 @@ function extractLatestReply(body: string): string {
   const separators = [
     "\nOn ",                       
     "\n-----Original Message-----", 
-    "\nFrom:"                       
+    "\nFrom:",
+    "\n>",
+    "wrote:"
   ];
   
   for (const sep of separators) {
@@ -26,68 +31,100 @@ function extractLatestReply(body: string): string {
     }
   }
   
-  // Remove quoted lines
+  // Remove quoted lines starting with >
   const lines = body.split('\n').filter(line => !line.trim().startsWith(">"));
   return lines.join('\n').trim();
 }
 
-async function readLastEmailBody(): Promise<string> {
+function decodeBase64Url(str: string): string {
+  // Convert base64url to base64
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  // Add padding if needed
+  while (str.length % 4) {
+    str += '=';
+  }
   try {
-    // Connect to IMAP server using TLS
-    const conn = await Deno.connectTls({
-      hostname: IMAP_SERVER,
-      port: 993,
+    return atob(str);
+  } catch (e) {
+    console.error('Error decoding base64:', e);
+    return str;
+  }
+}
+
+async function getLatestEmail(): Promise<string> {
+  if (!GMAIL_ACCESS_TOKEN) {
+    throw new Error('Gmail access token not configured');
+  }
+
+  try {
+    // Get list of messages
+    const messagesResponse = await fetch(`${GMAIL_API_URL}/users/me/messages?maxResults=1&q=in:inbox`, {
+      headers: {
+        'Authorization': `Bearer ${GMAIL_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
     });
 
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-
-    // Helper function to send command and read response
-    async function sendCommand(command: string): Promise<string> {
-      await conn.write(encoder.encode(command + '\r\n'));
-      const buffer = new Uint8Array(4096);
-      const n = await conn.read(buffer);
-      return decoder.decode(buffer.subarray(0, n || 0));
+    if (!messagesResponse.ok) {
+      throw new Error(`Gmail API error: ${messagesResponse.status} ${messagesResponse.statusText}`);
     }
 
-    // Login sequence
-    await sendCommand(`A001 LOGIN ${EMAIL_ACCOUNT} ${APP_PASSWORD}`);
+    const messagesData = await messagesResponse.json();
     
-    // Select inbox
-    await sendCommand('A002 SELECT INBOX');
+    if (!messagesData.messages || messagesData.messages.length === 0) {
+      throw new Error('No messages found in inbox');
+    }
+
+    const messageId = messagesData.messages[0].id;
+
+    // Get the full message
+    const messageResponse = await fetch(`${GMAIL_API_URL}/users/me/messages/${messageId}?format=full`, {
+      headers: {
+        'Authorization': `Bearer ${GMAIL_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!messageResponse.ok) {
+      throw new Error(`Gmail API error: ${messageResponse.status} ${messageResponse.statusText}`);
+    }
+
+    const messageData = await messageResponse.json();
     
-    // Search for all messages
-    const searchResponse = await sendCommand('A003 SEARCH ALL');
+    // Extract body from the message
+    let body = '';
     
-    // Extract message IDs from search response
-    const messageIds = searchResponse.match(/\* SEARCH (.+)/)?.[1]?.trim().split(' ') || [];
-    
-    if (messageIds.length === 0) {
-      conn.close();
-      return "";
+    function extractBody(part: any): string {
+      if (part.body && part.body.data) {
+        return decodeBase64Url(part.body.data);
+      }
+      
+      if (part.parts) {
+        for (const subPart of part.parts) {
+          if (subPart.mimeType === 'text/plain' && subPart.body && subPart.body.data) {
+            return decodeBase64Url(subPart.body.data);
+          }
+        }
+        // If no text/plain found, try the first part
+        if (part.parts[0]) {
+          return extractBody(part.parts[0]);
+        }
+      }
+      
+      return '';
     }
     
-    // Get the last message ID
-    const lastMessageId = messageIds[messageIds.length - 1];
+    body = extractBody(messageData.payload);
     
-    // Fetch the last email
-    const fetchResponse = await sendCommand(`A004 FETCH ${lastMessageId} (BODY[TEXT])`);
-    
-    // Extract body content from IMAP response
-    const bodyMatch = fetchResponse.match(/BODY\[TEXT\]\s*{[^}]+}\s*(.+?)(?=\r?\nA004)/s);
-    
-    conn.close();
-    
-    if (bodyMatch && bodyMatch[1]) {
-      const body = bodyMatch[1].trim();
-      return extractLatestReply(body);
+    if (!body) {
+      throw new Error('Could not extract email body');
     }
-    
-    return "";
+
+    return extractLatestReply(body);
     
   } catch (error) {
-    console.error('Error reading email:', error);
-    return "";
+    console.error('Error reading Gmail:', error);
+    throw error;
   }
 }
 
@@ -98,15 +135,15 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Attempting to read latest email...');
+    console.log('Attempting to read latest email from Gmail API...');
     
-    const emailBody = await readLastEmailBody();
+    const emailBody = await getLatestEmail();
     
-    if (!emailBody) {
-      throw new Error('No email content found');
+    if (!emailBody || emailBody.trim().length === 0) {
+      throw new Error('No email content found or email is empty');
     }
     
-    console.log('Email body extracted:', emailBody.substring(0, 100) + '...');
+    console.log('Email body extracted successfully:', emailBody.substring(0, 100) + '...');
 
     return new Response(JSON.stringify({ reply: emailBody }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
