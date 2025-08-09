@@ -46,6 +46,7 @@ export default function ConversationPage() {
   const { toast } = useToast();
   
   const conversation = mockConversations.find(conv => conv.id === id);
+  const [messages, setMessages] = useState<Message[]>(conversation?.messages || []);
   
   if (!conversation) {
     return (
@@ -83,9 +84,19 @@ export default function ConversationPage() {
   const handleSendReply = () => {
     if (!replyText.trim()) return;
     
-    // In real app, this would send the message and update the conversation
-    console.log("Sending reply:", replyText);
+    // Create new message
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      content: replyText,
+      timestamp: new Date(),
+      sender: "me",
+      channel: conversation.channel
+    };
+    
+    // Add message to conversation
+    setMessages(prev => [...prev, newMessage]);
     setReplyText("");
+    
     toast({
       title: "Message sent",
       description: "Your reply has been sent successfully.",
@@ -107,6 +118,18 @@ export default function ConversationPage() {
       });
 
       if (error) throw error;
+
+      // Create new message
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        content: replyText,
+        timestamp: new Date(),
+        sender: "me",
+        channel: conversation.channel
+      };
+      
+      // Add message to conversation
+      setMessages(prev => [...prev, newMessage]);
 
       toast({
         title: "Email sent successfully",
@@ -167,7 +190,7 @@ export default function ConversationPage() {
       
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {conversation.messages.map((message) => (
+        {messages.map((message) => (
           <div
             key={message.id}
             className={cn(
