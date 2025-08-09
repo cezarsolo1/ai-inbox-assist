@@ -43,6 +43,7 @@ export default function ConversationPage() {
   const [replyText, setReplyText] = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
   const [isEmailSending, setIsEmailSending] = useState(false);
+  const [isGeneratingReply, setIsGeneratingReply] = useState(false);
   const { toast } = useToast();
   
   const conversation = mockConversations.find(conv => conv.id === id);
@@ -101,6 +102,47 @@ export default function ConversationPage() {
       title: "Message sent",
       description: "Your reply has been sent successfully.",
     });
+  };
+
+  const handleGetTenantReply = async () => {
+    setIsGeneratingReply(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-tenant-reply', {
+        body: {
+          conversation,
+          messages
+        }
+      });
+
+      if (error) throw error;
+
+      // Create new message from tenant
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        content: data.reply,
+        timestamp: new Date(),
+        sender: "tenant",
+        channel: conversation.channel
+      };
+      
+      // Add message to conversation
+      setMessages(prev => [...prev, newMessage]);
+
+      toast({
+        title: "Tenant reply generated",
+        description: "A new reply from the tenant has been added.",
+      });
+    } catch (error: any) {
+      console.error('Failed to generate tenant reply:', error);
+      toast({
+        title: "Failed to generate reply",
+        description: error.message || "There was an error generating the tenant reply.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingReply(false);
+    }
   };
 
   const handleSendEmail = async () => {
@@ -269,6 +311,16 @@ export default function ConversationPage() {
           >
             <FileText className="w-4 h-4" />
             Templates
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleGetTenantReply}
+            disabled={isGeneratingReply}
+            className="flex items-center gap-2"
+          >
+            <User className="w-4 h-4" />
+            {isGeneratingReply ? "Generating..." : "Get Reply"}
           </Button>
         </div>
         
