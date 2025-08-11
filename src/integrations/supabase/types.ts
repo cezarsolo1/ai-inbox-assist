@@ -14,6 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      email_messages: {
+        Row: {
+          attachments: Json
+          body: string | null
+          created_at: string
+          direction: string
+          from_email: string
+          id: string
+          seen: boolean
+          thread_id: string
+          to_email: string
+        }
+        Insert: {
+          attachments?: Json
+          body?: string | null
+          created_at?: string
+          direction: string
+          from_email: string
+          id?: string
+          seen?: boolean
+          thread_id: string
+          to_email: string
+        }
+        Update: {
+          attachments?: Json
+          body?: string | null
+          created_at?: string
+          direction?: string
+          from_email?: string
+          id?: string
+          seen?: boolean
+          thread_id?: string
+          to_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "email_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_threads: {
+        Row: {
+          created_at: string
+          id: string
+          participant_email: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participant_email: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participant_email?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inbox_messages: {
         Row: {
           body: string | null
