@@ -7,6 +7,7 @@ import { Layout } from "@/components/layout/layout";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import InboxPage from "./pages/inbox";
+import InboxSetupPage from "./pages/inbox-setup";
 import ConversationPage from "./pages/conversation";
 import TemplatesPage from "./pages/templates";
 import PropertiesPage from "./pages/properties";
@@ -29,6 +30,20 @@ const App = () => (
               <ProtectedRoute>
                 <Layout>
                   <InboxPage />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/inbox" element={
+              <ProtectedRoute>
+                <Layout>
+                  <InboxPage />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/inbox/setup" element={
+              <ProtectedRoute>
+                <Layout>
+                  <InboxSetupPage />
                 </Layout>
               </ProtectedRoute>
             } />
