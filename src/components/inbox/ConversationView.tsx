@@ -151,13 +151,22 @@ export default function ConversationView({
 
   const handleSendMessage = async () => {
     const messageText = replyText || "";
-    if (!messageText.trim()) return;
+    if (!messageText.trim()) {
+      toast({
+        title: "Error",
+        description: "Type a message",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    console.log("Composer send", { to: contactNumber, text: messageText.trim() });
     
     setIsSending(true);
     try {
       await sendWhatsAppReply({
         to: contactNumber,
-        body: messageText.trim()
+        text: messageText.trim()
       });
 
       toast({
