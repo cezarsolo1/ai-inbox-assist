@@ -95,8 +95,7 @@ async function getLatestEmail(): Promise<string> {
     });
 
     if (!messagesResponse.ok) {
-      const errText = await messagesResponse.text();
-      throw new Error(`Gmail API error (list): ${messagesResponse.status} ${messagesResponse.statusText} - ${errText}`);
+      throw new Error(`Gmail API error: ${messagesResponse.status} ${messagesResponse.statusText}`);
     }
 
     const messagesData = await messagesResponse.json();
@@ -116,8 +115,7 @@ async function getLatestEmail(): Promise<string> {
     });
 
     if (!messageResponse.ok) {
-      const errText = await messageResponse.text();
-      throw new Error(`Gmail API error (get): ${messageResponse.status} ${messageResponse.statusText} - ${errText}`);
+      throw new Error(`Gmail API error: ${messageResponse.status} ${messageResponse.statusText}`);
     }
 
     const messageData = await messageResponse.json();
