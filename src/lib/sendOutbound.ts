@@ -23,7 +23,18 @@ export async function sendWhatsAppReply({
   if (error) throw error;
   const id = data.id;
 
-  // 2) Notify Make to send via Twilio
+  // 2) For now, just log since Make webhook is not configured
+  console.log("Would send to Make webhook:", {
+    id, 
+    to, 
+    from: TWILIO_WA_NUMBER, 
+    text: body, 
+    media
+  });
+
+  // Skip the webhook call for now since the URL is a placeholder
+  // When you configure your Make webhook, uncomment the code below:
+  /*
   try {
     await fetch(MAKE_OUTBOUND_WEBHOOK_URL, {
       method: "POST",
@@ -47,6 +58,7 @@ export async function sendWhatsAppReply({
       .eq("id", id);
     throw e;
   }
+  */
 
   return id;
 }

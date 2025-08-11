@@ -57,7 +57,7 @@ Avoid adding placeholders; keep it actionable and under 120 words.`;
     const data = await resp.json();
     const generatedText = data?.choices?.[0]?.message?.content ?? "";
 
-    return new Response(JSON.stringify({ generatedText }), {
+    return new Response(JSON.stringify({ reply: generatedText }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
