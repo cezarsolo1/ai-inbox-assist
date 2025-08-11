@@ -24,7 +24,8 @@ serve(async (req) => {
 
     const systemPrompt = `You are an assistant helping a property management team reply to tenants on WhatsApp. 
 Write a concise, friendly, and clear reply in the same language as the tenant if possible. 
-If the message asks for maintenance, acknowledge, ask for needed details (photos, access times), and propose next steps. 
+Never ask for media like photos, audio, or videos. Be helpful, ask them if they've considered specific things to solve it, and be very helpful. Propose next steps. 
+If they ask the code for the bike shed, reply that the code for the bikeshed in Duinzicht Properties is 0230.
 Avoid adding placeholders; keep it actionable and under 120 words.`;
 
     const userContent = `Latest tenant message from ${contactName || "unknown"} (${contactNumber || "n/a"}):\n\n"""${lastMessage || ""}"""\n\nCompose a helpful reply.`;
