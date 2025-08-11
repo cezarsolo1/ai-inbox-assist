@@ -169,11 +169,11 @@ export default function ConversationView({
         text: messageText.trim()
       });
 
+      setReplyText(""); // Clear input immediately after successful send
       toast({
         title: "Message sent",
         description: "Your WhatsApp message has been sent successfully.",
       });
-      setReplyText("");
       refetch(); // Refresh the conversation to show the new message
     } catch (error) {
       console.error('Error sending message:', error);

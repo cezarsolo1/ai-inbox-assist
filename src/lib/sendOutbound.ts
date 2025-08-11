@@ -45,20 +45,29 @@ export async function sendWhatsAppReply({
 
   console.log("OUTBOUND → Make", { url: MAKE_OUTBOUND_WEBHOOK_URL, payload });
 
-  const res = await fetch(MAKE_OUTBOUND_WEBHOOK_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(MAKE_OUTBOUND_TOKEN ? { "X-Inbox-Token": MAKE_OUTBOUND_TOKEN } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
+  try {
+    const res = await fetch(MAKE_OUTBOUND_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(MAKE_OUTBOUND_TOKEN ? { "X-Inbox-Token": MAKE_OUTBOUND_TOKEN } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
 
-  const txt = await res.text();
-  console.log("Make response", res.status, txt);
-  if (!res.ok) {
-    await supabase.from("outbound_messages").update({ status: "failed", error: txt }).eq("id", id);
-    throw new Error(`Make outbound failed: ${res.status}`);
+    const txt = await res.text();
+    console.log("Make response", res.status, txt);
+    if (!res.ok) {
+      console.warn(`Make webhook failed (${res.status}): ${txt}. Message still saved locally.`);
+      await supabase.from("outbound_messages").update({ status: "failed", error: txt }).eq("id", id);
+      // Don't throw error - message was saved successfully to local database
+    } else {
+      await supabase.from("outbound_messages").update({ status: "sent" }).eq("id", id);
+    }
+  } catch (fetchError) {
+    console.warn("Make webhook request failed:", fetchError, ". Message still saved locally.");
+    await supabase.from("outbound_messages").update({ status: "failed", error: String(fetchError) }).eq("id", id);
+    // Don't throw error - message was saved successfully to local database
   }
 
   return id;
