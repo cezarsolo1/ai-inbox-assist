@@ -1,4 +1,5 @@
-import { ArrowLeft, MessageCircle, Paperclip, Clock, Trash2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { ArrowLeft, MessageCircle, Paperclip, Trash2, Send, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { deleteMessage } from "@/hooks/useInboxMessages";
 import { cn } from "@/lib/utils";
 import type { InboxMessage } from "@/hooks/useInboxMessages";
-
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
 interface ConversationViewProps {
   messages: InboxMessage[];
   contactName: string;
@@ -121,6 +123,11 @@ function MessageBubble({ message, onMessageDeleted }: { message: InboxMessage; o
 }
 
 export function ConversationView({ messages, contactName, contactNumber, onBack, onMessageDeleted }: ConversationViewProps) {
+  const { toast } = useToast();
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+
   // Group messages by date
   const messagesByDate = messages.reduce((acc, message) => {
     const date = formatDate(message.created_at);
@@ -130,6 +137,59 @@ export function ConversationView({ messages, contactName, contactNumber, onBack,
     acc[date].push(message);
     return acc;
   }, {} as Record<string, InboxMessage[]>);
+
+  const lastMessageBody = useMemo(() => {
+    const sorted = [...messages].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    const candidate = sorted.find((m) => m.body && m.body.trim().length > 0);
+    return candidate?.body ?? "";
+  }, [messages]);
+
+  const handleAIReply = async () => {
+    if (!lastMessageBody) {
+      toast({
+        title: "No recent message",
+        description: "There is no recent message to analyze.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      setAiLoading(true);
+      const { data, error } = await supabase.functions.invoke('ai-draft-reply', {
+        body: { lastMessage: lastMessageBody, contactName, contactNumber },
+      });
+      if (error) throw error;
+      const generated = (data as any)?.generatedText || (data as any)?.reply || "";
+      if (generated) {
+        setReplyText(generated);
+      } else {
+        toast({ title: "AI didn't return a reply", description: "Try again.", variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "AI error", description: err.message || 'Failed to generate reply', variant: 'destructive' });
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleSend = async () => {
+    if (!replyText.trim()) return;
+    try {
+      setSending(true);
+      const { error } = await supabase.functions.invoke('send-whatsapp', {
+        body: { to: contactNumber, body: replyText.trim() },
+      });
+      if (error) throw error;
+      toast({ title: "Message sent", description: "Your WhatsApp message was sent." });
+      setReplyText("");
+    } catch (err: any) {
+      toast({ title: "Send failed", description: err.message || 'Could not send message', variant: 'destructive' });
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -168,6 +228,26 @@ export function ConversationView({ messages, contactName, contactNumber, onBack,
           ))}
         </div>
       </ScrollArea>
+
+      {/* Composer */}
+      <div className="border-t border-border bg-card p-3">
+        <div className="flex items-end gap-3">
+          <Textarea
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder="Type a WhatsApp message..."
+            className="min-h-[56px]"
+          />
+          <div className="flex flex-col gap-2">
+            <Button variant="secondary" onClick={handleAIReply} disabled={aiLoading || messages.length === 0}>
+              <Sparkles className="w-4 h-4 mr-2" /> AI Reply
+            </Button>
+            <Button onClick={handleSend} disabled={sending || !replyText.trim()}>
+              <Send className="w-4 h-4 mr-2" /> Send
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
