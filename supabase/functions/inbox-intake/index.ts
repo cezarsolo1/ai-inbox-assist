@@ -39,7 +39,20 @@ const handler = async (req: Request): Promise<Response> => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const data: InboxMessage = await req.json();
+    let data: InboxMessage;
+    try {
+      data = await req.json();
+    } catch (jsonError) {
+      console.error('Invalid JSON received:', jsonError);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid JSON format', 
+        details: 'The request body must be valid JSON',
+        received_error: jsonError.message
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
     console.log('Received message data:', JSON.stringify(data, null, 2));
 
     // Validate required fields
