@@ -8,6 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useInboxMessages, markMessageAsSeen, type InboxMessage } from "@/hooks/useInboxMessages";
 import { MessageRow } from "@/components/inbox/MessageRow";
 import { MessageDetailsDrawer } from "@/components/inbox/MessageDetailsDrawer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EmailRow, type EmailMessage } from "@/components/email/EmailRow";
+import { EmailDetailsDrawer } from "@/components/email/EmailDetailsDrawer";
 import { Link } from "react-router-dom";
 
 export default function InboxPage() {
@@ -15,6 +18,8 @@ export default function InboxPage() {
   const [selectedFilter, setSelectedFilter] = useState<"all" | "unread" | "hasMedia">("all");
   const [selectedMessage, setSelectedMessage] = useState<InboxMessage | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
+  const [isEmailDrawerOpen, setIsEmailDrawerOpen] = useState(false);
   const { toast } = useToast();
   
   const { 
@@ -45,6 +50,26 @@ export default function InboxPage() {
     }
   };
 
+  const emailMessages: EmailMessage[] = [
+    {
+      id: "demo-1",
+      from: "alex.tenant@example.com",
+      to: "you@yourcompany.com",
+      subject: "Leaky faucet in unit 12B",
+      snippet: "Hi, there's a small leak in the kitchen sink...",
+      body:
+        "Hi team,\n\nThere's a small leak in the kitchen sink in unit 12B. Could someone take a look this week?\n\nThanks,\nAlex",
+      attachments: [{ name: "photo.jpg" }],
+      created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+      seen: false,
+    },
+  ];
+
+  const handleEmailClick = (message: EmailMessage) => {
+    setSelectedEmail(message);
+    setIsEmailDrawerOpen(true);
+  };
+
   if (error) {
     toast({
       title: "Error",
@@ -54,111 +79,159 @@ export default function InboxPage() {
   }
 
   return (
-    <div className="flex h-full relative">
-      {/* Message List */}
-      <div className="w-1/2 border-r border-border bg-gradient-card">
-        {/* Header */}
-        <div className="p-6 border-b border-border bg-card">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-semibold text-foreground">Inbox (WhatsApp)</h1>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-primary-muted text-primary">
-                {messages.length} messages
-              </Badge>
-              <Link to="/inbox/setup">
-                <Button variant="outline" size="sm">
-                  Setup
-                </Button>
-              </Link>
-            </div>
-          </div>
-          
-          {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search messages..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          {/* Filters */}
-          <div className="flex gap-2">
-            <Button
-              variant={selectedFilter === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedFilter("all")}
-            >
-              All
-            </Button>
-            <Button
-              variant={selectedFilter === "unread" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedFilter("unread")}
-            >
-              <Filter className="w-4 h-4 mr-1" />
-              Unread
-            </Button>
-            <Button
-              variant={selectedFilter === "hasMedia" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedFilter("hasMedia")}
-            >
-              <Paperclip className="w-4 h-4 mr-1" />
-              Has Media
-            </Button>
-          </div>
-        </div>
-        
-        {/* Message List */}
-        <div className="overflow-y-auto">
-          {isLoading ? (
-            <div className="p-4 space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
-                  <Skeleton className="h-3 w-full" />
-                </div>
-              ))}
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
-              <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No messages yet</p>
-              <p className="text-sm">Send a WhatsApp message to your Twilio number</p>
-            </div>
-          ) : (
-            <div className="p-4 space-y-2">
-              {messages.map((message) => (
-                <MessageRow
-                  key={message.id}
-                  message={message}
-                  onClick={() => handleMessageClick(message)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Empty State */}
-      <div className="flex-1 flex items-center justify-center bg-muted/20">
-        <div className="text-center text-muted-foreground">
-          <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <h2 className="text-xl font-medium mb-2">Select a message</h2>
-          <p>Choose a message from the list to view details</p>
-        </div>
-      </div>
+    <Tabs defaultValue="whatsapp" className="h-full w-full">
+      <TabsList className="m-4">
+        <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+        <TabsTrigger value="email">Email</TabsTrigger>
+      </TabsList>
 
-      {/* Message Details Drawer */}
-      <MessageDetailsDrawer
-        message={selectedMessage}
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-      />
-    </div>
+      <TabsContent value="whatsapp" className="h-[calc(100%-3.5rem)]">
+        <div className="flex h-full relative">
+          {/* Message List */}
+          <div className="w-1/2 border-r border-border bg-gradient-card">
+            {/* Header */}
+            <div className="p-6 border-b border-border bg-card">
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-semibold text-foreground">Inbox (WhatsApp)</h1>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="bg-primary-muted text-primary">
+                    {messages.length} messages
+                  </Badge>
+                  <Link to="/inbox/setup">
+                    <Button variant="outline" size="sm">
+                      Setup
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Search */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search messages..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              {/* Filters */}
+              <div className="flex gap-2">
+                <Button
+                  variant={selectedFilter === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedFilter("all")}
+                >
+                  All
+                </Button>
+                <Button
+                  variant={selectedFilter === "unread" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedFilter("unread")}
+                >
+                  <Filter className="w-4 h-4 mr-1" />
+                  Unread
+                </Button>
+                <Button
+                  variant={selectedFilter === "hasMedia" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedFilter("hasMedia")}
+                >
+                  <Paperclip className="w-4 h-4 mr-1" />
+                  Has Media
+                </Button>
+              </div>
+            </div>
+            
+            {/* Message List */}
+            <div className="overflow-y-auto">
+              {isLoading ? (
+                <div className="p-4 space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                      <Skeleton className="h-3 w-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No messages yet</p>
+                  <p className="text-sm">Send a WhatsApp message to your Twilio number</p>
+                </div>
+              ) : (
+                <div className="p-4 space-y-2">
+                  {messages.map((message) => (
+                    <MessageRow
+                      key={message.id}
+                      message={message}
+                      onClick={() => handleMessageClick(message)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Empty State */}
+          <div className="flex-1 flex items-center justify-center bg-muted/20">
+            <div className="text-center text-muted-foreground">
+              <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <h2 className="text-xl font-medium mb-2">Select a message</h2>
+              <p>Choose a message from the list to view details</p>
+            </div>
+          </div>
+
+          {/* Message Details Drawer */}
+          <MessageDetailsDrawer
+            message={selectedMessage}
+            isOpen={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+          />
+        </div>
+      </TabsContent>
+
+      <TabsContent value="email" className="h-[calc(100%-3.5rem)]">
+        <div className="flex h-full relative">
+          {/* Email List */}
+          <div className="w-1/2 border-r border-border bg-gradient-card">
+            <div className="p-6 border-b border-border bg-card">
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-semibold text-foreground">Inbox (Email)</h1>
+                <Badge variant="secondary" className="bg-primary-muted text-primary">
+                  {emailMessages.length} conversation
+                </Badge>
+              </div>
+            </div>
+            <div className="overflow-y-auto">
+              <div className="p-4 space-y-2">
+                {emailMessages.map((m) => (
+                  <EmailRow key={m.id} message={m} onClick={() => handleEmailClick(m)} />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Email Empty State */}
+          <div className="flex-1 flex items-center justify-center bg-muted/20">
+            <div className="text-center text-muted-foreground">
+              <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <h2 className="text-xl font-medium mb-2">Select a message</h2>
+              <p>Choose a message from the list to view details</p>
+            </div>
+          </div>
+
+          {/* Email Details Drawer */}
+          <EmailDetailsDrawer
+            message={selectedEmail}
+            isOpen={isEmailDrawerOpen}
+            onClose={() => setIsEmailDrawerOpen(false)}
+          />
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }
