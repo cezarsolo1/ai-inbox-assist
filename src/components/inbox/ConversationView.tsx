@@ -144,7 +144,7 @@ export default function ConversationView({
   onBack, 
   onMessageDeleted 
 }: ConversationViewProps) {
-  const [replyText, setReplyText] = useState("");
+  const [replyText, setReplyText] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const { toast } = useToast();
@@ -155,13 +155,14 @@ export default function ConversationView({
   });
 
   const handleSendMessage = async () => {
-    if (!replyText.trim()) return;
+    const messageText = replyText || "";
+    if (!messageText.trim()) return;
     
     setIsSending(true);
     try {
       await sendWhatsAppReply({
         to: contactNumber,
-        body: replyText.trim()
+        body: messageText.trim()
       });
 
       toast({
@@ -279,8 +280,8 @@ export default function ConversationView({
       <div className="border-t bg-background p-4">
         <div className="flex gap-2">
           <Textarea
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
+            value={replyText || ""}
+            onChange={(e) => setReplyText(e.target.value || "")}
             placeholder="Type your WhatsApp message..."
             className="flex-1 min-h-[60px] resize-none"
             onKeyDown={(e) => {
@@ -307,7 +308,7 @@ export default function ConversationView({
             <Button
               size="sm"
               onClick={handleSendMessage}
-              disabled={isSending || !replyText.trim()}
+              disabled={isSending || !(replyText || "").trim()}
             >
               {isSending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
