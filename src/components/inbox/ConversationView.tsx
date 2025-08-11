@@ -88,11 +88,6 @@ const MessageBubble = ({ message, onDelete }: { message: ConversationMessage; on
           <span className="text-xs text-muted-foreground">
             {formatTime(message.created_at)}
           </span>
-          {!isInbound && message.status && (
-            <Badge variant={message.status === 'sent' ? 'default' : message.status === 'failed' ? 'destructive' : 'secondary'} className="text-xs">
-              {message.status}
-            </Badge>
-          )}
         </div>
         
         {message.body && (
