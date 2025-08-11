@@ -124,6 +124,48 @@ export type Database = {
         }
         Relationships: []
       }
+      outbound_messages: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string | null
+          error: string | null
+          from_msisdn: string
+          id: string
+          media: Json
+          status: string
+          to_msisdn: string
+          twilio_sid: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          body: string
+          channel?: string
+          created_at?: string | null
+          error?: string | null
+          from_msisdn: string
+          id?: string
+          media?: Json
+          status?: string
+          to_msisdn: string
+          twilio_sid?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string | null
+          error?: string | null
+          from_msisdn?: string
+          id?: string
+          media?: Json
+          status?: string
+          to_msisdn?: string
+          twilio_sid?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       tenants: {
         Row: {
           created_at: string
@@ -144,7 +186,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      conversation_messages: {
+        Row: {
+          body: string | null
+          channel: string | null
+          counterparty: string | null
+          created_at: string | null
+          direction: string | null
+          id: string | null
+          media: Json | null
+          our_number: string | null
+          status: string | null
+          twilio_sid: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
