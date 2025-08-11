@@ -1,18 +1,25 @@
-import { useState, useMemo } from "react";
-import { ArrowLeft, MessageCircle, Paperclip, Trash2, Send, Sparkles } from "lucide-react";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
-import { deleteMessage } from "@/hooks/useInboxMessages";
-import { cn } from "@/lib/utils";
-import type { InboxMessage } from "@/hooks/useInboxMessages";
 import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Trash2, Loader2, Bot, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { ConversationMessage, useConversationMessages } from "@/hooks/useConversationMessages";
+import { sendWhatsAppReply } from "@/lib/sendOutbound";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+
 interface ConversationViewProps {
-  messages: InboxMessage[];
   contactName: string;
   contactNumber: string;
   onBack: () => void;
@@ -39,164 +46,192 @@ const formatDate = (date: string) => {
   }
 };
 
-function MessageBubble({ message, onMessageDeleted }: { message: InboxMessage; onMessageDeleted?: () => void }) {
-  const hasMedia = message.media && message.media.length > 0 && message.media.some(url => url && url.trim() !== "");
+const MessageBubble = ({ message, onDelete }: { message: ConversationMessage; onDelete: () => void }) => {
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
+    setIsDeleting(true);
     try {
-      await deleteMessage(message.id);
+      if (message.direction === 'inbound') {
+        await supabase.from('inbox_messages').delete().eq('id', message.id);
+      } else {
+        await supabase.from('outbound_messages').delete().eq('id', message.id);
+      }
       toast({
         title: "Message deleted",
         description: "The message has been deleted successfully.",
       });
-      onMessageDeleted?.();
+      onDelete();
     } catch (error) {
+      console.error('Error deleting message:', error);
       toast({
         title: "Error",
-        description: "Failed to delete message. Please try again.",
+        description: "Failed to delete the message. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
+
+  const isInbound = message.direction === 'inbound';
+  const displayName = isInbound ? (message.counterparty || message.counterparty) : 'You';
   
   return (
-    <div className="flex items-start gap-3 mb-4 group">
-      <div className="flex-shrink-0 w-8 h-8 bg-whatsapp-accent rounded-full flex items-center justify-center">
-        <MessageCircle className="w-4 h-4 text-white" />
-      </div>
-      <div className="flex-1">
-        <Card className={cn(
-          "p-3 max-w-[80%] relative",
-          !message.seen && "border-primary/50 bg-primary-muted/10"
-        )}>
-          <div className="space-y-2">
-            {message.body && (
-              <p className="text-sm">{message.body}</p>
-            )}
-            {hasMedia && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Paperclip className="w-3 h-3" />
-                <span>Media attachment</span>
-              </div>
-            )}
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                {formatTime(message.created_at)}
-              </span>
-              <div className="flex items-center gap-2">
-                {!message.seen && (
-                  <Badge variant="secondary" className="text-xs">New</Badge>
-                )}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Message</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this message? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
+    <div className={`flex items-start gap-3 p-4 border-b group ${!isInbound ? 'flex-row-reverse' : ''}`}>
+      <div className={`flex-1 ${!isInbound ? 'text-right' : ''}`}>
+        <div className={`flex items-center gap-2 mb-1 ${!isInbound ? 'justify-end' : ''}`}>
+          <span className="font-medium text-sm">
+            {displayName}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {formatTime(message.created_at)}
+          </span>
+          {!isInbound && message.status && (
+            <Badge variant={message.status === 'sent' ? 'default' : message.status === 'failed' ? 'destructive' : 'secondary'} className="text-xs">
+              {message.status}
+            </Badge>
+          )}
+        </div>
+        
+        {message.body && (
+          <p className="text-sm text-foreground mb-2">{message.body}</p>
+        )}
+        
+        {message.media && message.media.length > 0 && (
+          <div className="text-xs text-muted-foreground mb-2">
+            📎 {message.media.length} attachment(s)
           </div>
-        </Card>
+        )}
       </div>
+      
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Message</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this message? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
-}
+};
 
-export function ConversationView({ messages, contactName, contactNumber, onBack, onMessageDeleted }: ConversationViewProps) {
-  const { toast } = useToast();
+export default function ConversationView({ 
+  contactName, 
+  contactNumber, 
+  onBack, 
+  onMessageDeleted 
+}: ConversationViewProps) {
   const [replyText, setReplyText] = useState("");
-  const [sending, setSending] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const { toast } = useToast();
+  
+  // Use the new unified conversation messages hook
+  const { data: messages = [], refetch, isLoading } = useConversationMessages({
+    counterparty: contactNumber
+  });
 
-  // Group messages by date
-  const messagesByDate = messages.reduce((acc, message) => {
-    const date = formatDate(message.created_at);
-    if (!acc[date]) {
-      acc[date] = [];
-    }
-    acc[date].push(message);
-    return acc;
-  }, {} as Record<string, InboxMessage[]>);
+  const handleSendMessage = async () => {
+    if (!replyText.trim()) return;
+    
+    setIsSending(true);
+    try {
+      await sendWhatsAppReply({
+        to: contactNumber,
+        body: replyText.trim()
+      });
 
-  const lastMessageBody = useMemo(() => {
-    const sorted = [...messages].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-    const candidate = sorted.find((m) => m.body && m.body.trim().length > 0);
-    return candidate?.body ?? "";
-  }, [messages]);
-
-  const handleAIReply = async () => {
-    if (!lastMessageBody) {
       toast({
-        title: "No recent message",
-        description: "There is no recent message to analyze.",
+        title: "Message sent",
+        description: "Your WhatsApp message has been sent successfully.",
+      });
+      setReplyText("");
+      refetch(); // Refresh the conversation to show the new message
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
         variant: "destructive",
       });
-      return;
-    }
-    try {
-      setAiLoading(true);
-      const { data, error } = await supabase.functions.invoke('ai-draft-reply', {
-        body: { lastMessage: lastMessageBody, contactName, contactNumber },
-      });
-      if (error) throw error;
-      const generated = (data as any)?.generatedText || (data as any)?.reply || "";
-      if (generated) {
-        setReplyText(generated);
-      } else {
-        toast({ title: "AI didn't return a reply", description: "Try again.", variant: "destructive" });
-      }
-    } catch (err: any) {
-      toast({ title: "AI error", description: err.message || 'Failed to generate reply', variant: 'destructive' });
     } finally {
-      setAiLoading(false);
+      setIsSending(false);
     }
   };
 
-  const handleSend = async () => {
-    if (!replyText.trim()) return;
+  const handleAIReply = async () => {
+    if (messages.length === 0) return;
+    
+    setIsGeneratingAI(true);
     try {
-      setSending(true);
-      const { error } = await supabase.functions.invoke('send-whatsapp', {
-        body: { to: contactNumber, body: replyText.trim() },
+      // Get the last inbound message for AI context
+      const lastInboundMessage = messages.filter(m => m.direction === 'inbound').slice(-1)[0];
+      
+      const { data, error } = await supabase.functions.invoke('ai-draft-reply', {
+        body: {
+          lastMessage: lastInboundMessage?.body || "",
+          contactName: contactName
+        }
       });
+
       if (error) throw error;
-      toast({ title: "Message sent", description: "Your WhatsApp message was sent." });
-      setReplyText("");
-    } catch (err: any) {
-      toast({ title: "Send failed", description: err.message || 'Could not send message', variant: 'destructive' });
+
+      setReplyText(data.reply);
+      toast({
+        title: "AI reply generated",
+        description: "An AI-powered reply has been generated for you.",
+      });
+    } catch (error) {
+      console.error('Error generating AI reply:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate AI reply. Please try again.",
+        variant: "destructive",
+      });
     } finally {
-      setSending(false);
+      setIsGeneratingAI(false);
     }
   };
+
+  // Group messages by date
+  const groupedMessages = messages.reduce((groups, message) => {
+    const date = formatDate(message.created_at);
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(message);
+    return groups;
+  }, {} as Record<string, ConversationMessage[]>);
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-border bg-card flex items-center gap-3">
+      <div className="flex items-center gap-3 p-4 border-b bg-background">
         <Button variant="ghost" size="sm" onClick={onBack}>
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">
           <h2 className="font-semibold">{contactName}</h2>
@@ -208,42 +243,78 @@ export function ConversationView({ messages, contactName, contactNumber, onBack,
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-6">
-          {Object.entries(messagesByDate).map(([date, dateMessages]) => (
+      <div className="flex-1 overflow-y-auto">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
+        ) : Object.entries(groupedMessages).length === 0 ? (
+          <div className="flex items-center justify-center h-32 text-muted-foreground">
+            No messages yet
+          </div>
+        ) : (
+          Object.entries(groupedMessages).map(([date, dateMessages]) => (
             <div key={date}>
-              <div className="flex items-center justify-center mb-4">
-                <Badge variant="outline" className="bg-background">
+              <div className="text-center py-2">
+                <span className="text-xs text-muted-foreground bg-background px-3 py-1 rounded-full border">
                   {date}
-                </Badge>
+                </span>
               </div>
-              <div className="space-y-0">
-                {dateMessages
-                  .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-                  .map((message) => (
-                    <MessageBubble key={message.id} message={message} onMessageDeleted={onMessageDeleted} />
-                  ))}
-              </div>
+              {dateMessages.map((message) => (
+                <MessageBubble 
+                  key={message.id} 
+                  message={message} 
+                  onDelete={() => {
+                    refetch();
+                    onMessageDeleted?.();
+                  }} 
+                />
+              ))}
             </div>
-          ))}
-        </div>
-      </ScrollArea>
+          ))
+        )}
+      </div>
 
-      {/* Composer */}
-      <div className="border-t border-border bg-card p-3">
-        <div className="flex items-end gap-3">
+      {/* Message Composer */}
+      <div className="border-t bg-background p-4">
+        <div className="flex gap-2">
           <Textarea
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Type a WhatsApp message..."
-            className="min-h-[56px]"
+            placeholder="Type your WhatsApp message..."
+            className="flex-1 min-h-[60px] resize-none"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
           />
           <div className="flex flex-col gap-2">
-            <Button variant="secondary" onClick={handleAIReply} disabled={aiLoading || messages.length === 0}>
-              <Sparkles className="w-4 h-4 mr-2" /> AI Reply
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAIReply}
+              disabled={isGeneratingAI || messages.length === 0}
+            >
+              {isGeneratingAI ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Bot className="h-4 w-4" />
+              )}
+              AI
             </Button>
-            <Button onClick={handleSend} disabled={sending || !replyText.trim()}>
-              <Send className="w-4 h-4 mr-2" /> Send
+            <Button
+              size="sm"
+              onClick={handleSendMessage}
+              disabled={isSending || !replyText.trim()}
+            >
+              {isSending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              Send
             </Button>
           </div>
         </div>

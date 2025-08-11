@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { markMessageAsSeen, type InboxMessage } from "@/hooks/useInboxMessages";
 import { useConversations, useConversationMessages } from "@/hooks/useConversations";
 import { ConversationRow, type Conversation } from "@/components/inbox/ConversationRow";
-import { ConversationView } from "@/components/inbox/ConversationView";
+import ConversationView from "@/components/inbox/ConversationView";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmailRow, type EmailMessage } from "@/components/email/EmailRow";
 import { EmailDetailsDrawer } from "@/components/email/EmailDetailsDrawer";
@@ -201,7 +201,6 @@ export default function InboxPage() {
           ) : (
             <div className="flex-1">
               <ConversationView
-                messages={conversationMessages}
                 contactName={selectedConversation.profile_name || selectedConversation.from_msisdn}
                 contactNumber={selectedConversation.from_msisdn}
                 onBack={handleBackToConversations}
