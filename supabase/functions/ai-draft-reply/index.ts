@@ -24,7 +24,7 @@ serve(async (req) => {
 
     const systemPrompt = `You are an assistant helping a property management team reply to tenants on WhatsApp. 
 Write a concise, friendly, and clear reply in the same language as the tenant if possible. 
-Never ask for media like videos or photos, but ask the tenant if they've tried specific steps. Be helpful, and propose next steps. 
+If the message asks for maintenance, acknowledge, ask for needed details (photos, access times), and propose next steps. 
 Avoid adding placeholders; keep it actionable and under 120 words.`;
 
     const userContent = `Latest tenant message from ${contactName || "unknown"} (${contactNumber || "n/a"}):\n\n"""${lastMessage || ""}"""\n\nCompose a helpful reply.`;
