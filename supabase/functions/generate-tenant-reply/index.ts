@@ -9,8 +9,10 @@ const corsHeaders = {
 const GMAIL_API_URL = 'https://gmail.googleapis.com/gmail/v1';
 const EMAIL_ACCOUNT = "solovastrucezar@gmail.com";
 
-// You'll need to get this from Google Cloud Console
-const GMAIL_ACCESS_TOKEN = Deno.env.get('GMAIL_ACCESS_TOKEN');
+const OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
+const GMAIL_CLIENT_ID = Deno.env.get('GMAIL_CLIENT_ID');
+const GMAIL_CLIENT_SECRET = Deno.env.get('GMAIL_CLIENT_SECRET');
+const GMAIL_REFRESH_TOKEN = Deno.env.get('GMAIL_REFRESH_TOKEN');
 
 function extractLatestReply(body: string): string {
   /**
@@ -51,16 +53,43 @@ function decodeBase64Url(str: string): string {
   }
 }
 
-async function getLatestEmail(): Promise<string> {
-  if (!GMAIL_ACCESS_TOKEN) {
-    throw new Error('Gmail access token not configured');
+async function getAccessToken(): Promise<string> {
+  if (!GMAIL_CLIENT_ID || !GMAIL_CLIENT_SECRET || !GMAIL_REFRESH_TOKEN) {
+    throw new Error('Missing Gmail OAuth secrets');
   }
 
+  const params = new URLSearchParams({
+    client_id: GMAIL_CLIENT_ID,
+    client_secret: GMAIL_CLIENT_SECRET,
+    refresh_token: GMAIL_REFRESH_TOKEN,
+    grant_type: 'refresh_token',
+  });
+
+  const resp = await fetch(OAUTH_TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString(),
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`Token exchange failed: ${resp.status} ${resp.statusText} - ${text}`);
+  }
+
+  const json = await resp.json();
+  if (!json.access_token) throw new Error('No access_token in response');
+  return json.access_token as string;
+}
+
+async function getLatestEmail(): Promise<string> {
   try {
-    // Get list of messages
+    const accessToken = await getAccessToken();
+    console.log('Access token retrieved successfully');
+
+    // Get list of messages (latest inbox message)
     const messagesResponse = await fetch(`${GMAIL_API_URL}/users/me/messages?maxResults=1&q=in:inbox`, {
       headers: {
-        'Authorization': `Bearer ${GMAIL_ACCESS_TOKEN}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
@@ -80,7 +109,7 @@ async function getLatestEmail(): Promise<string> {
     // Get the full message
     const messageResponse = await fetch(`${GMAIL_API_URL}/users/me/messages/${messageId}?format=full`, {
       headers: {
-        'Authorization': `Bearer ${GMAIL_ACCESS_TOKEN}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
@@ -121,7 +150,7 @@ async function getLatestEmail(): Promise<string> {
     }
 
     return extractLatestReply(body);
-    
+      
   } catch (error) {
     console.error('Error reading Gmail:', error);
     throw error;
