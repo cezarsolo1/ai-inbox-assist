@@ -15,6 +15,7 @@ interface EmailDetailsDrawerProps {
 }
 
 export function EmailDetailsDrawer({ message, isOpen, onClose }: EmailDetailsDrawerProps) {
+  if (!isOpen || !message) return null;
   const { toast } = useToast();
   const { user } = useAuth();
   const myEmail = user?.email || "you@yourcompany.com";
@@ -38,7 +39,6 @@ export function EmailDetailsDrawer({ message, isOpen, onClose }: EmailDetailsDra
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
   }, [thread, isOpen]);
 
-  if (!isOpen || !message) return null;
 
   const isOutgoing = (m: EmailMessage) => m.from.toLowerCase() === myEmail.toLowerCase();
 
