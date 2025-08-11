@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      inbox_messages: {
+        Row: {
+          body: string | null
+          channel: string
+          created_at: string
+          from_msisdn: string
+          id: string
+          media: Json | null
+          profile_name: string | null
+          raw: Json | null
+          seen: boolean | null
+          to_msisdn: string
+          twilio_sid: string | null
+        }
+        Insert: {
+          body?: string | null
+          channel: string
+          created_at?: string
+          from_msisdn: string
+          id?: string
+          media?: Json | null
+          profile_name?: string | null
+          raw?: Json | null
+          seen?: boolean | null
+          to_msisdn: string
+          twilio_sid?: string | null
+        }
+        Update: {
+          body?: string | null
+          channel?: string
+          created_at?: string
+          from_msisdn?: string
+          id?: string
+          media?: Json | null
+          profile_name?: string | null
+          raw?: Json | null
+          seen?: boolean | null
+          to_msisdn?: string
+          twilio_sid?: string | null
+        }
+        Relationships: []
+      }
+      tenants: {
+        Row: {
+          created_at: string
+          id: number
+          name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
