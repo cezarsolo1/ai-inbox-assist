@@ -67,3 +67,12 @@ export async function markMessageAsSeen(messageId: string) {
 
   if (error) throw error;
 }
+
+export async function deleteMessage(messageId: string) {
+  const { error } = await supabase
+    .from("inbox_messages")
+    .delete()
+    .eq("id", messageId);
+
+  if (error) throw error;
+}

@@ -56,6 +56,11 @@ export default function InboxPage() {
     setSelectedConversation(null);
   };
 
+  const handleMessageDeleted = () => {
+    // Force refresh of conversations and messages
+    window.location.reload();
+  };
+
   const emailMessages: EmailMessage[] = [
     {
       id: "demo-1",
@@ -194,13 +199,13 @@ export default function InboxPage() {
               </div>
             </>
           ) : (
-            /* Conversation View */
             <div className="flex-1">
               <ConversationView
                 messages={conversationMessages}
                 contactName={selectedConversation.profile_name || selectedConversation.from_msisdn}
                 contactNumber={selectedConversation.from_msisdn}
                 onBack={handleBackToConversations}
+                onMessageDeleted={handleMessageDeleted}
               />
             </div>
           )}
