@@ -17,14 +17,7 @@ export default function AuthPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/");
-      }
-    };
-    checkUser();
+    navigate("/");
   }, [navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
