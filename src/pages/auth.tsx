@@ -17,8 +17,8 @@ export default function AuthPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    navigate("/");
-  }, [navigate]);
+    // Auth page temporarily disabled; no auto-redirect
+  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
