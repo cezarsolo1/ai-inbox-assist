@@ -55,38 +55,23 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Received email payload:", JSON.stringify(payload, null, 2));
 
     // Normalize addresses
-    // Normalize addresses (be defensive)
-    const rawFrom = payload.from;
-    const fromEmail = typeof rawFrom === "string"
-      ? rawFrom.trim() || null
-      : (rawFrom && typeof rawFrom === "object" && typeof (rawFrom as any).email === "string")
-      ? ((rawFrom as any).email as string).trim() || null
-      : null;
-
-    const rawTo = payload.to;
-    const toList: string[] = Array.isArray(rawTo)
-      ? (rawTo as EmailAddress[])
-          .map((t) => (t && typeof t.email === "string" ? t.email.trim() : ""))
-          .filter(Boolean)
-      : typeof rawTo === "string"
-      ? rawTo.split(",").map((s) => s.trim()).filter(Boolean)
+    const fromEmail = typeof payload.from === "string" ? payload.from : payload.from?.email;
+    const toList: string[] = Array.isArray(payload.to)
+      ? (payload.to as EmailAddress[]).map((t) => t.email)
+      : typeof payload.to === "string"
+      ? payload.to.split(",").map((s) => s.trim())
       : [];
 
     const subject = payload.subject ?? "(no subject)";
     const body = payload.text ?? payload.html ?? "";
     const attachments = Array.isArray(payload.attachments) ? payload.attachments : [];
-    const headers = Array.isArray(payload.headers) ? payload.headers : [];
 
-    // At least one email needed to anchor a thread
-    if (!fromEmail && toList.length === 0) {
+    if (!fromEmail || toList.length === 0) {
       return new Response(
-        JSON.stringify({ ok: false, error: "Invalid payload: missing both from and to addresses" }),
+        JSON.stringify({ error: "Invalid payload: from.email and at least one to are required" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
-
-    // Choose a participant to anchor the thread (prefer sender)
-    const participant = fromEmail ?? toList[0] ?? null;
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
@@ -94,7 +79,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: existingThread, error: selectErr } = await supabase
       .from("email_threads")
       .select("id")
-      .eq("participant_email", participant)
+      .eq("participant_email", fromEmail)
       .eq("subject", subject)
       .maybeSingle();
 
@@ -111,7 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (!threadId) {
       const { data: newThread, error: insertThreadErr } = await supabase
         .from("email_threads")
-        .insert({ participant_email: participant, subject })
+        .insert({ participant_email: fromEmail, subject })
         .select("id")
         .single();
 
@@ -131,9 +116,9 @@ const handler = async (req: Request): Promise<Response> => {
       .from("email_messages")
       .insert({
         thread_id: threadId,
-        direction: "incoming",
-        from_email: fromEmail ?? null,
-        to_email: toList.length > 0 ? toList.join(", ") : null,
+        direction: "inbound",
+        from_email: fromEmail,
+        to_email: toList.join(", "),
         body,
         attachments,
       })
@@ -142,8 +127,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (msgErr) {
       console.error("Error inserting email message:", msgErr);
-      return new Response(JSON.stringify({ ok: false, error: msgErr.message }), {
-        status: 400,
+      return new Response(JSON.stringify({ error: msgErr.message }), {
+        status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
