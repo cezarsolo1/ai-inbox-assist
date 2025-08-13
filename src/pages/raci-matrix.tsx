@@ -235,6 +235,42 @@ export default function RACIMatrixPage() {
                   Add Role
                 </Button>
               </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{editingRole ? "Edit Role" : "Add New Role"}</DialogTitle>
+                  <DialogDescription>
+                    {editingRole ? "Update the role details below." : "Create a new role for the RACI matrix."}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="role-name">Role Name *</Label>
+                    <Input
+                      id="role-name"
+                      value={roleFormData.name}
+                      onChange={(e) => setRoleFormData({ ...roleFormData, name: e.target.value })}
+                      placeholder="Enter role name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="role-department">Department *</Label>
+                    <Input
+                      id="role-department"
+                      value={roleFormData.department}
+                      onChange={(e) => setRoleFormData({ ...roleFormData, department: e.target.value })}
+                      placeholder="Enter department"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveRole}>
+                      {editingRole ? "Update" : "Add"} Role
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
             </Dialog>
             <Dialog open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen}>
               <DialogTrigger asChild>
@@ -243,6 +279,60 @@ export default function RACIMatrixPage() {
                   Add Task
                 </Button>
               </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{editingTask ? "Edit Task" : "Add New Task"}</DialogTitle>
+                  <DialogDescription>
+                    {editingTask ? "Update the task details below." : "Create a new task for the RACI matrix."}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="task-name">Task Name *</Label>
+                    <Input
+                      id="task-name"
+                      value={taskFormData.name}
+                      onChange={(e) => setTaskFormData({ ...taskFormData, name: e.target.value })}
+                      placeholder="Enter task name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="task-description">Description</Label>
+                    <Textarea
+                      id="task-description"
+                      value={taskFormData.description}
+                      onChange={(e) => setTaskFormData({ ...taskFormData, description: e.target.value })}
+                      placeholder="Enter task description"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="task-category">Category *</Label>
+                    <Select
+                      value={taskFormData.category}
+                      onValueChange={(value) => setTaskFormData({ ...taskFormData, category: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsTaskDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveTask}>
+                      {editingTask ? "Update" : "Add"} Task
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
             </Dialog>
           </div>
         </div>
@@ -365,102 +455,6 @@ export default function RACIMatrixPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Task Dialog */}
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{editingTask ? "Edit Task" : "Add New Task"}</DialogTitle>
-          <DialogDescription>
-            {editingTask ? "Update the task details below." : "Create a new task for the RACI matrix."}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="task-name">Task Name *</Label>
-            <Input
-              id="task-name"
-              value={taskFormData.name}
-              onChange={(e) => setTaskFormData({ ...taskFormData, name: e.target.value })}
-              placeholder="Enter task name"
-            />
-          </div>
-          <div>
-            <Label htmlFor="task-description">Description</Label>
-            <Textarea
-              id="task-description"
-              value={taskFormData.description}
-              onChange={(e) => setTaskFormData({ ...taskFormData, description: e.target.value })}
-              placeholder="Enter task description"
-            />
-          </div>
-          <div>
-            <Label htmlFor="task-category">Category *</Label>
-            <Select
-              value={taskFormData.category}
-              onValueChange={(value) => setTaskFormData({ ...taskFormData, category: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsTaskDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveTask}>
-              {editingTask ? "Update" : "Add"} Task
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-
-      {/* Role Dialog */}
-      <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingRole ? "Edit Role" : "Add New Role"}</DialogTitle>
-            <DialogDescription>
-              {editingRole ? "Update the role details below." : "Create a new role for the RACI matrix."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="role-name">Role Name *</Label>
-              <Input
-                id="role-name"
-                value={roleFormData.name}
-                onChange={(e) => setRoleFormData({ ...roleFormData, name: e.target.value })}
-                placeholder="Enter role name"
-              />
-            </div>
-            <div>
-              <Label htmlFor="role-department">Department *</Label>
-              <Input
-                id="role-department"
-                value={roleFormData.department}
-                onChange={(e) => setRoleFormData({ ...roleFormData, department: e.target.value })}
-                placeholder="Enter department"
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSaveRole}>
-                {editingRole ? "Update" : "Add"} Role
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
