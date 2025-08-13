@@ -9,17 +9,18 @@ import { markMessageAsSeen, type InboxMessage } from "@/hooks/useInboxMessages";
 import { useConversations, useConversationMessages } from "@/hooks/useConversations";
 import { ConversationRow, type Conversation } from "@/components/inbox/ConversationRow";
 import ConversationView from "@/components/inbox/ConversationView";
+import { EmailThreadRow } from "@/components/email/EmailThreadRow";
+import { EmailThreadDrawer } from "@/components/email/EmailThreadDrawer";
+import { useEmailThreads, type EmailThread } from "@/hooks/useEmailThreads";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EmailRow, type EmailMessage } from "@/components/email/EmailRow";
-import { EmailDetailsDrawer } from "@/components/email/EmailDetailsDrawer";
 import { Link } from "react-router-dom";
 
 export default function InboxPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<"all" | "unread" | "hasMedia">("all");
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
-  const [isEmailDrawerOpen, setIsEmailDrawerOpen] = useState(false);
+const [selectedEmailThread, setSelectedEmailThread] = useState<EmailThread | null>(null);
+const [isEmailDrawerOpen, setIsEmailDrawerOpen] = useState(false);
   const { toast } = useToast();
   
   const { 
@@ -61,25 +62,12 @@ export default function InboxPage() {
     window.location.reload();
   };
 
-  const emailMessages: EmailMessage[] = [
-    {
-      id: "demo-1",
-      from: "alex.tenant@example.com",
-      to: "you@yourcompany.com",
-      subject: "Leaky faucet in unit 12B",
-      snippet: "Hi, there's a small leak in the kitchen sink...",
-      body:
-        "Hi team,\n\nThere's a small leak in the kitchen sink in unit 12B. Could someone take a look this week?\n\nThanks,\nAlex",
-      attachments: [{ name: "photo.jpg" }],
-      created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-      seen: false,
-    },
-  ];
+const { data: emailThreads = [], isLoading: isLoadingEmail } = useEmailThreads();
 
-  const handleEmailClick = (message: EmailMessage) => {
-    setSelectedEmail(message);
-    setIsEmailDrawerOpen(true);
-  };
+const handleEmailThreadClick = (thread: EmailThread) => {
+  setSelectedEmailThread(thread);
+  setIsEmailDrawerOpen(true);
+};
 
   if (error) {
     toast({
@@ -219,15 +207,27 @@ export default function InboxPage() {
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-semibold text-foreground">Inbox (Email)</h1>
                 <Badge variant="secondary" className="bg-primary-muted text-primary">
-                  {emailMessages.length} conversation
+                  {emailThreads.length} threads
                 </Badge>
               </div>
             </div>
             <div className="overflow-y-auto">
               <div className="p-4 space-y-2">
-                {emailMessages.map((m) => (
-                  <EmailRow key={m.id} message={m} onClick={() => handleEmailClick(m)} />
-                ))}
+                {isLoadingEmail ? (
+                  <div className="space-y-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="h-12 w-full" />
+                    ))}
+                  </div>
+                ) : emailThreads.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p>No email threads yet</p>
+                  </div>
+                ) : (
+                  emailThreads.map((t) => (
+                    <EmailThreadRow key={t.id} thread={t} onClick={() => handleEmailThreadClick(t)} />
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -242,8 +242,8 @@ export default function InboxPage() {
           </div>
 
           {/* Email Details Drawer */}
-          <EmailDetailsDrawer
-            message={selectedEmail}
+          <EmailThreadDrawer
+            thread={selectedEmailThread}
             isOpen={isEmailDrawerOpen}
             onClose={() => setIsEmailDrawerOpen(false)}
           />
