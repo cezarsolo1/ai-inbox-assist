@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef } from "react";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { useEmailThreadMessages, type EmailThread } from "@/hooks/useEmailThreads";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface EmailThreadDrawerProps {
   thread: EmailThread | null;
@@ -13,7 +15,8 @@ interface EmailThreadDrawerProps {
 
 export function EmailThreadDrawer({ thread, isOpen, onClose }: EmailThreadDrawerProps) {
   const listRef = useRef<HTMLDivElement | null>(null);
-  const { data: messages = [] } = useEmailThreadMessages(thread?.id);
+  const { data: messages = [], refetch } = useEmailThreadMessages(thread?.id);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -56,7 +59,7 @@ export function EmailThreadDrawer({ thread, isOpen, onClose }: EmailThreadDrawer
             <Card className="p-4 text-sm text-muted-foreground">No messages in this thread yet.</Card>
           ) : (
             messages.map((m) => (
-              <div key={m.id} className={`flex ${isOutgoing(m.from_email) ? "justify-end" : "justify-start"}`}>
+              <div key={m.id} className={`group flex ${isOutgoing(m.from_email) ? "justify-end" : "justify-start"} items-start gap-2`}>
                 <div
                   className={`max-w-[80%] rounded-lg px-3 py-2 text-sm shadow-sm ${
                     isOutgoing(m.from_email)
@@ -72,6 +75,27 @@ export function EmailThreadDrawer({ thread, isOpen, onClose }: EmailThreadDrawer
                     {new Date(m.created_at).toLocaleString()}
                   </div>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={async () => {
+                    try {
+                      const { error } = await supabase.functions.invoke("email-delete-message", {
+                        body: { id: m.id },
+                      });
+                      if (error) throw error;
+                      toast({ title: "Email deleted" });
+                      refetch();
+                    } catch (e: any) {
+                      console.error("Failed to delete email:", e);
+                      toast({ title: "Failed to delete email", description: e?.message ?? "", variant: "destructive" });
+                    }
+                  }}
+                  aria-label="Delete email"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             ))
           )}
