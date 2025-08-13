@@ -12,6 +12,7 @@ import ConversationPage from "./pages/conversation";
 import TemplatesPage from "./pages/templates";
 import PropertiesPage from "./pages/properties";
 import TenantsPage from "./pages/tenants";
+import RACIMatrixPage from "./pages/raci-matrix";
 import AuthPage from "./pages/auth";
 import NotFound from "./pages/NotFound";
 
@@ -79,6 +80,13 @@ const App = () => (
               <ProtectedRoute>
                 <Layout>
                   <TenantsPage />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/raci-matrix" element={
+              <ProtectedRoute>
+                <Layout>
+                  <RACIMatrixPage />
                 </Layout>
               </ProtectedRoute>
             } />
