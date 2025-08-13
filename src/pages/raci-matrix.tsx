@@ -193,14 +193,14 @@ export default function RACIMatrixPage() {
     });
   };
 
-  const updateAssignment = (taskId: string, roleId: string, value: "R" | "A" | "C" | "I" | null) => {
+  const updateAssignment = (taskId: string, roleId: string, value: "R" | "A" | "C" | "I" | "none") => {
     setTasks(tasks.map(task =>
       task.id === taskId
         ? {
             ...task,
             assignments: {
               ...task.assignments,
-              [roleId]: value,
+              [roleId]: value === "none" ? null : value,
             },
           }
         : task
@@ -410,16 +410,16 @@ export default function RACIMatrixPage() {
                       {roles.map((role) => (
                         <TableCell key={role.id} className="text-center">
                           <Select
-                            value={task.assignments[role.id] || ""}
+                            value={task.assignments[role.id] || "none"}
                             onValueChange={(value) => 
-                              updateAssignment(task.id, role.id, value === "" ? null : value as "R" | "A" | "C" | "I")
+                              updateAssignment(task.id, role.id, value as "R" | "A" | "C" | "I" | "none")
                             }
                           >
                             <SelectTrigger className="w-[80px] mx-auto">
                               <SelectValue placeholder="-" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">None</SelectItem>
+                              <SelectItem value="none">None</SelectItem>
                               {raciTypes.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.value} - {type.label}
