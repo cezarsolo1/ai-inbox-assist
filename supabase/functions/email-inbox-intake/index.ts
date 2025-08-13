@@ -21,6 +21,63 @@ interface EmailWebhookPayload {
   attachments?: any[];
 }
 
+function sanitizeJsonString(input: string): string {
+  let out = "";
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+    if (!inString) {
+      if (ch === '"') {
+        inString = true;
+      }
+      out += ch;
+      continue;
+    }
+    // in string
+    if (escaped) {
+      out += ch;
+      escaped = false;
+      continue;
+    }
+    if (ch === "\\") {
+      out += ch;
+      escaped = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = false;
+      out += ch;
+      continue;
+    }
+    const code = ch.charCodeAt(0);
+    if (code <= 0x1f) {
+      switch (ch) {
+        case "\n":
+          out += "\\n";
+          break;
+        case "\r":
+          out += "\\r";
+          break;
+        case "\t":
+          out += "\\t";
+          break;
+        case "\b":
+          out += "\\b";
+          break;
+        case "\f":
+          out += "\\f";
+          break;
+        default:
+          out += "\\u" + code.toString(16).padStart(4, "0");
+      }
+      continue;
+    }
+    out += ch;
+  }
+  return out;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -51,7 +108,26 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    const payload = (await req.json()) as EmailWebhookPayload;
+let payload: EmailWebhookPayload;
+try {
+  payload = (await req.json()) as EmailWebhookPayload;
+} catch (parseErr) {
+  // Fallback: read raw text and escape control characters within string literals
+  const raw = await req.text();
+  try {
+    const sanitized = sanitizeJsonString(raw);
+    payload = JSON.parse(sanitized) as EmailWebhookPayload;
+  } catch (e2) {
+    console.error("Invalid JSON payload for email-inbox-intake", {
+      parseErr: (parseErr as Error).message,
+      rawSnippet: raw.slice(0, 500),
+    });
+    return new Response(
+      JSON.stringify({ ok: false, error: "Invalid JSON: ensure strings escape newlines as \\n" }),
+      { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+}
     console.log("Received email payload:", JSON.stringify(payload, null, 2));
 
     // Normalize addresses
