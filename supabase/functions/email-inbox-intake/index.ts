@@ -108,26 +108,25 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-let payload: EmailWebhookPayload;
-try {
-  payload = (await req.json()) as EmailWebhookPayload;
-} catch (parseErr) {
-  // Fallback: read raw text and escape control characters within string literals
-  const raw = await req.text();
-  try {
-    const sanitized = sanitizeJsonString(raw);
-    payload = JSON.parse(sanitized) as EmailWebhookPayload;
-  } catch (e2) {
-    console.error("Invalid JSON payload for email-inbox-intake", {
-      parseErr: (parseErr as Error).message,
-      rawSnippet: raw.slice(0, 500),
-    });
-    return new Response(
-      JSON.stringify({ ok: false, error: "Invalid JSON: ensure strings escape newlines as \\n" }),
-      { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-    );
-  }
-}
+    let payload: EmailWebhookPayload;
+    const raw = await req.text();
+    try {
+      payload = JSON.parse(raw) as EmailWebhookPayload;
+    } catch (parseErr) {
+      try {
+        const sanitized = sanitizeJsonString(raw);
+        payload = JSON.parse(sanitized) as EmailWebhookPayload;
+      } catch (e2) {
+        console.error("Invalid JSON payload for email-inbox-intake", {
+          parseErr: (parseErr as Error).message,
+          rawSnippet: raw.slice(0, 500),
+        });
+        return new Response(
+          JSON.stringify({ ok: false, error: "Invalid JSON: ensure strings escape newlines as \\n" }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+    }
     console.log("Received email payload:", JSON.stringify(payload, null, 2));
 
     // Normalize addresses
