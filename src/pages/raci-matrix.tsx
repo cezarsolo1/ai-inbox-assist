@@ -22,6 +22,8 @@ interface RACITask {
   name: string;
   description: string;
   category: string;
+  address?: string;
+  complaintDate?: string; // YYYY-MM-DD
   assignments: {
     [roleId: string]: "R" | "A" | "C" | "I" | null;
   };
@@ -78,11 +80,13 @@ export default function RACIMatrixPage() {
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<RACITask | null>(null);
   const [editingRole, setEditingRole] = useState<RACIRole | null>(null);
-  const [taskFormData, setTaskFormData] = useState({
-    name: "",
-    description: "",
-    category: "",
-  });
+const [taskFormData, setTaskFormData] = useState({
+  name: "",
+  description: "",
+  category: "",
+  address: "",
+  complaintDate: "",
+});
   const [roleFormData, setRoleFormData] = useState({
     name: "",
     department: "",
@@ -95,19 +99,21 @@ export default function RACIMatrixPage() {
   );
 
   const handleAddTask = () => {
-    setEditingTask(null);
-    setTaskFormData({ name: "", description: "", category: "" });
-    setIsTaskDialogOpen(true);
+setEditingTask(null);
+setTaskFormData({ name: "", description: "", category: "", address: "", complaintDate: "" });
+setIsTaskDialogOpen(true);
   };
 
   const handleEditTask = (task: RACITask) => {
-    setEditingTask(task);
-    setTaskFormData({
-      name: task.name,
-      description: task.description,
-      category: task.category,
-    });
-    setIsTaskDialogOpen(true);
+setEditingTask(task);
+setTaskFormData({
+  name: task.name,
+  description: task.description,
+  category: task.category,
+  address: task.address || "",
+  complaintDate: task.complaintDate || "",
+});
+setIsTaskDialogOpen(true);
   };
 
   const handleSaveTask = () => {
@@ -217,9 +223,18 @@ export default function RACIMatrixPage() {
         {type}
       </Badge>
     );
-  };
+};
 
-  return (
+const getInCharge = (task: RACITask) => {
+  const entries = Object.entries(task.assignments || {});
+  const accountable = entries.find(([_, v]) => v === "A")?.[0];
+  const responsible = entries.find(([_, v]) => v === "R")?.[0];
+  const roleId = accountable || responsible;
+  const role = roles.find((r) => r.id === roleId);
+  return role?.name || "-";
+};
+
+return (
     <div className="flex h-full flex-col bg-background">
       <div className="border-b border-border bg-background px-6 py-4">
         <div className="flex items-center justify-between">
@@ -305,32 +320,50 @@ export default function RACIMatrixPage() {
                       placeholder="Enter task description"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="task-category">Category *</Label>
-                    <Select
-                      value={taskFormData.category}
-                      onValueChange={(value) => setTaskFormData({ ...taskFormData, category: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setIsTaskDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSaveTask}>
-                      {editingTask ? "Update" : "Add"} Task
-                    </Button>
-                  </div>
+<div>
+  <Label htmlFor="task-category">Category *</Label>
+  <Select
+    value={taskFormData.category}
+    onValueChange={(value) => setTaskFormData({ ...taskFormData, category: value })}
+  >
+    <SelectTrigger>
+      <SelectValue placeholder="Select category" />
+    </SelectTrigger>
+    <SelectContent>
+      {categories.map((category) => (
+        <SelectItem key={category} value={category}>
+          {category}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+</div>
+<div>
+  <Label htmlFor="task-address">Address</Label>
+  <Input
+    id="task-address"
+    value={taskFormData.address}
+    onChange={(e) => setTaskFormData({ ...taskFormData, address: e.target.value })}
+    placeholder="Enter address"
+  />
+</div>
+<div>
+  <Label htmlFor="task-complaint-date">Complaint date</Label>
+  <Input
+    id="task-complaint-date"
+    type="date"
+    value={taskFormData.complaintDate}
+    onChange={(e) => setTaskFormData({ ...taskFormData, complaintDate: e.target.value })}
+  />
+</div>
+<div className="flex justify-end gap-2">
+  <Button variant="outline" onClick={() => setIsTaskDialogOpen(false)}>
+    Cancel
+  </Button>
+  <Button onClick={handleSaveTask}>
+    {editingTask ? "Update" : "Add"} Task
+  </Button>
+</div>
                 </div>
               </DialogContent>
             </Dialog>
@@ -385,70 +418,82 @@ export default function RACIMatrixPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[300px]">Task</TableHead>
-                    {roles.map((role) => (
-                      <TableHead key={role.id} className="text-center min-w-[120px]">
-                        <div>
-                          <div className="font-medium">{role.name}</div>
-                          <div className="text-xs text-muted-foreground">{role.department}</div>
-                        </div>
-                      </TableHead>
-                    ))}
-                    <TableHead className="w-[100px]">Actions</TableHead>
+<TableHead className="w-[300px]">Task</TableHead>
+<TableHead className="min-w-[220px]">Address</TableHead>
+<TableHead className="min-w-[160px] text-center">In charge</TableHead>
+<TableHead className="min-w-[160px]">Complaint date</TableHead>
+{roles.map((role) => (
+  <TableHead key={role.id} className="text-center min-w-[120px]">
+    <div>
+      <div className="font-medium">{role.name}</div>
+      <div className="text-xs text-muted-foreground">{role.department}</div>
+    </div>
+  </TableHead>
+))}
+<TableHead className="w-[100px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTasks.map((task) => (
-                    <TableRow key={task.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{task.name}</div>
-                          <div className="text-sm text-muted-foreground">{task.description}</div>
-                          <Badge variant="outline" className="mt-1">{task.category}</Badge>
-                        </div>
-                      </TableCell>
-                      {roles.map((role) => (
-                        <TableCell key={role.id} className="text-center">
-                          <Select
-                            value={task.assignments[role.id] || "none"}
-                            onValueChange={(value) => 
-                              updateAssignment(task.id, role.id, value as "R" | "A" | "C" | "I" | "none")
-                            }
-                          >
-                            <SelectTrigger className="w-[80px] mx-auto">
-                              <SelectValue placeholder="-" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">None</SelectItem>
-                              {raciTypes.map((type) => (
-                                <SelectItem key={type.value} value={type.value}>
-                                  {type.value} - {type.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                      ))}
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditTask(task)}
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteTask(task.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+{filteredTasks.map((task) => (
+  <TableRow key={task.id}>
+    <TableCell>
+      <div>
+        <div className="font-medium">{task.name}</div>
+        <div className="text-sm text-muted-foreground">{task.description}</div>
+        <Badge variant="outline" className="mt-1">{task.category}</Badge>
+      </div>
+    </TableCell>
+    <TableCell>
+      {task.address && task.address.trim() ? task.address : "-"}
+    </TableCell>
+    <TableCell className="text-center">
+      {getInCharge(task)}
+    </TableCell>
+    <TableCell>
+      {task.complaintDate && task.complaintDate.trim() ? task.complaintDate : "-"}
+    </TableCell>
+    {roles.map((role) => (
+      <TableCell key={role.id} className="text-center">
+        <Select
+          value={task.assignments[role.id] || "none"}
+          onValueChange={(value) =>
+            updateAssignment(task.id, role.id, value as "R" | "A" | "C" | "I" | "none")
+          }
+        >
+          <SelectTrigger className="w-[80px] mx-auto">
+            <SelectValue placeholder="-" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            {raciTypes.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.value} - {type.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </TableCell>
+    ))}
+    <TableCell>
+      <div className="flex gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleEditTask(task)}
+        >
+          <Edit2 className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleDeleteTask(task.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </TableCell>
+  </TableRow>
+))}
                 </TableBody>
               </Table>
             </div>
