@@ -384,29 +384,6 @@ return (
       </div>
 
       <div className="flex-1 overflow-auto p-6">
-        <div className="mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>RACI Legend</CardTitle>
-              <CardDescription>Understanding the responsibility types</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {raciTypes.map((type) => (
-                  <div key={type.value} className="flex items-center gap-2">
-                    <Badge className={type.color} variant="secondary">
-                      {type.value}
-                    </Badge>
-                    <div>
-                      <div className="font-medium text-sm">{type.label}</div>
-                      <div className="text-xs text-muted-foreground">{type.description}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         <Card>
           <CardHeader>
@@ -424,10 +401,7 @@ return (
 <TableHead className="min-w-[160px]">Complaint date</TableHead>
 {roles.map((role) => (
   <TableHead key={role.id} className="text-center min-w-[120px]">
-    <div>
-      <div className="font-medium">{role.name}</div>
-      <div className="text-xs text-muted-foreground">{role.department}</div>
-    </div>
+                          <div className="font-medium">{role.name}</div>
   </TableHead>
 ))}
 <TableHead className="w-[100px]">Actions</TableHead>
@@ -440,7 +414,7 @@ return (
       <div>
         <div className="font-medium">{task.name}</div>
         <div className="text-sm text-muted-foreground">{task.description}</div>
-        <Badge variant="outline" className="mt-1">{task.category}</Badge>
+        
       </div>
     </TableCell>
     <TableCell>
