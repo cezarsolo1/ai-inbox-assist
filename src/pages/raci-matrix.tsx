@@ -93,11 +93,13 @@ const [taskFormData, setTaskFormData] = useState({
   });
   const { toast } = useToast();
 
-  const filteredTasks = tasks.filter(task =>
-    task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    task.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredTasks = tasks.filter(task =>
+  task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  task.category.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
+const HIDDEN_ROLE_NAMES = new Set(["Property Manager", "Maintenance Lead", "Leasing Agent", "Tenant Relations"]);
+const visibleRoles = roles.filter((r) => !HIDDEN_ROLE_NAMES.has(r.name));
   const handleAddTask = () => {
 setEditingTask(null);
 setTaskFormData({ name: "", description: "", category: "", address: "", complaintDate: "" });
@@ -399,9 +401,9 @@ return (
 <TableHead className="min-w-[220px]">Address</TableHead>
 <TableHead className="min-w-[160px] text-center">In charge</TableHead>
 <TableHead className="min-w-[160px]">Complaint date</TableHead>
-{roles.map((role) => (
+{visibleRoles.map((role) => (
   <TableHead key={role.id} className="text-center min-w-[120px]">
-                          <div className="font-medium">{role.name}</div>
+                        <div className="font-medium">{role.name}</div>
   </TableHead>
 ))}
 <TableHead className="w-[100px]">Actions</TableHead>
@@ -426,28 +428,28 @@ return (
     <TableCell>
       {task.complaintDate && task.complaintDate.trim() ? task.complaintDate : "-"}
     </TableCell>
-    {roles.map((role) => (
-      <TableCell key={role.id} className="text-center">
-        <Select
-          value={task.assignments[role.id] || "none"}
-          onValueChange={(value) =>
-            updateAssignment(task.id, role.id, value as "R" | "A" | "C" | "I" | "none")
-          }
-        >
-          <SelectTrigger className="w-[80px] mx-auto">
-            <SelectValue placeholder="-" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {raciTypes.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.value} - {type.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </TableCell>
-    ))}
+{visibleRoles.map((role) => (
+  <TableCell key={role.id} className="text-center">
+    <Select
+      value={task.assignments[role.id] || "none"}
+      onValueChange={(value) =>
+        updateAssignment(task.id, role.id, value as "R" | "A" | "C" | "I" | "none")
+      }
+    >
+      <SelectTrigger className="w-[80px] mx-auto">
+        <SelectValue placeholder="-" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="none">None</SelectItem>
+        {raciTypes.map((type) => (
+          <SelectItem key={type.value} value={type.value}>
+            {type.value} - {type.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </TableCell>
+))}
     <TableCell>
       <div className="flex gap-1">
         <Button
