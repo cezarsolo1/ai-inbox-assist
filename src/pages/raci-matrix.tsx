@@ -86,6 +86,7 @@ const [taskFormData, setTaskFormData] = useState({
   category: "",
   address: "",
   complaintDate: "",
+  inChargeRoleId: "",
 });
   const [roleFormData, setRoleFormData] = useState({
     name: "",
@@ -102,58 +103,85 @@ const HIDDEN_ROLE_NAMES = new Set(["Property Manager", "Maintenance Lead", "Leas
 const visibleRoles = roles.filter((r) => !HIDDEN_ROLE_NAMES.has(r.name));
   const handleAddTask = () => {
 setEditingTask(null);
-setTaskFormData({ name: "", description: "", category: "", address: "", complaintDate: "" });
+setTaskFormData({ name: "", description: "", category: "", address: "", complaintDate: "", inChargeRoleId: "" });
 setIsTaskDialogOpen(true);
   };
 
   const handleEditTask = (task: RACITask) => {
 setEditingTask(task);
+const currentInCharge = Object.entries(task.assignments || {}).find(([_, v]) => v === "A")?.[0] || "";
 setTaskFormData({
   name: task.name,
   description: task.description,
   category: task.category,
   address: task.address || "",
   complaintDate: task.complaintDate || "",
+  inChargeRoleId: currentInCharge,
 });
 setIsTaskDialogOpen(true);
   };
 
-  const handleSaveTask = () => {
-    if (!taskFormData.name.trim() || !taskFormData.category) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
+const handleSaveTask = () => {
+  const { name, description, category, address, complaintDate, inChargeRoleId } = taskFormData;
+  if (!name.trim() || !category) {
+    toast({
+      title: "Validation Error",
+      description: "Please fill in all required fields.",
+      variant: "destructive",
+    });
+    return;
+  }
 
-    if (editingTask) {
-      setTasks(tasks.map(task =>
-        task.id === editingTask.id
-          ? { ...task, ...taskFormData }
-          : task
-      ));
-      toast({
-        title: "Success",
-        description: "Task updated successfully.",
-      });
-    } else {
-      const newTask: RACITask = {
-        id: Date.now().toString(),
-        ...taskFormData,
-        assignments: {},
-      };
-      setTasks([...tasks, newTask]);
-      toast({
-        title: "Success",
-        description: "Task added successfully.",
-      });
+  if (editingTask) {
+    setTasks(
+      tasks.map((task) => {
+        if (task.id !== editingTask.id) return task;
+        const updatedAssignments = { ...task.assignments } as RACITask["assignments"];
+        for (const [rid, val] of Object.entries(updatedAssignments)) {
+          if (val === "A") updatedAssignments[rid] = null;
+        }
+        if (inChargeRoleId) {
+          updatedAssignments[inChargeRoleId] = "A";
+        }
+        return {
+          ...task,
+          name,
+          description,
+          category,
+          address,
+          complaintDate,
+          assignments: updatedAssignments,
+        };
+      })
+    );
+    toast({
+      title: "Success",
+      description: "Task updated successfully.",
+    });
+  } else {
+    const newAssignments: RACITask["assignments"] = {};
+    if (inChargeRoleId) {
+      newAssignments[inChargeRoleId] = "A";
     }
+    const newTask: RACITask = {
+      id: Date.now().toString(),
+      name,
+      description,
+      category,
+      address,
+      complaintDate,
+      assignments: newAssignments,
+    };
+    setTasks([...tasks, newTask]);
+    toast({
+      title: "Success",
+      description: "Task added successfully.",
+    });
+  }
 
-    setIsTaskDialogOpen(false);
-    setEditingTask(null);
-  };
+  setIsTaskDialogOpen(false);
+  setEditingTask(null);
+};
 
   const handleDeleteTask = (taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId));
@@ -335,6 +363,25 @@ return (
       {categories.map((category) => (
         <SelectItem key={category} value={category}>
           {category}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+</div>
+<div>
+  <Label htmlFor="task-incharge">In charge</Label>
+  <Select
+    value={taskFormData.inChargeRoleId || "none"}
+    onValueChange={(value) => setTaskFormData({ ...taskFormData, inChargeRoleId: value === "none" ? "" : value })}
+  >
+    <SelectTrigger>
+      <SelectValue placeholder="Select in charge (optional)" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="none">None</SelectItem>
+      {visibleRoles.map((role) => (
+        <SelectItem key={role.id} value={role.id}>
+          {role.name}
         </SelectItem>
       ))}
     </SelectContent>
