@@ -17,8 +17,27 @@ export default function AuthPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Auth page temporarily disabled; no auto-redirect
-  }, []);
+    // Check if user is already authenticated and redirect
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        // Check user role to determine redirect
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (roleData?.role === 'tenant') {
+          navigate('/tenant');
+        } else {
+          navigate('/');
+        }
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +84,23 @@ export default function AuthPage() {
         variant: "destructive",
       });
     } else {
-      navigate("/");
+      // Check user role to determine redirect after successful sign in
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (roleData?.role === 'tenant') {
+          navigate('/tenant');
+        } else {
+          navigate('/');
+        }
+      } else {
+        navigate('/');
+      }
     }
     setLoading(false);
   };
