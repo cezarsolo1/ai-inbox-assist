@@ -18,6 +18,7 @@ import AuthPage from "./pages/auth";
 import NotFound from "./pages/NotFound";
 import TenantWelcome from "./pages/tenant-welcome";
 import TenantFileTicket from "./pages/tenant-file-ticket";
+import UserManagementPage from "./pages/user-management";
 
 const queryClient = new QueryClient();
 
@@ -134,6 +135,15 @@ const App = () => (
                 <RoleBasedRoute allowedRoles={['admin']} redirectTo="/tenant">
                   <Layout>
                     <div className="p-8 text-center text-muted-foreground">Settings page coming soon...</div>
+                  </Layout>
+                </RoleBasedRoute>
+              </ProtectedRoute>
+            } />
+            <Route path="/users" element={
+              <ProtectedRoute>
+                <RoleBasedRoute allowedRoles={['admin']} redirectTo="/tenant">
+                  <Layout>
+                    <UserManagementPage />
                   </Layout>
                 </RoleBasedRoute>
               </ProtectedRoute>

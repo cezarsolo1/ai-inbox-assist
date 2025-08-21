@@ -25,27 +25,32 @@ export default function UserManagementPage() {
   const { data: users, isLoading } = useQuery({
     queryKey: ['users-with-roles'],
     queryFn: async () => {
-      // Get all users from auth.users via RPC call
-      const { data: authUsers, error: authError } = await supabase.rpc('get_users_with_roles');
-      
-      if (authError) {
+      try {
+        // Try to get users with roles using RPC function
+        const { data: authUsers, error: authError } = await supabase
+          .rpc('get_users_with_roles');
+        
+        if (authError) {
+          throw authError;
+        }
+        
+        return (authUsers || []) as UserWithRole[];
+      } catch (error) {
         // Fallback: get users from user_roles table
-        const { data: userRoles, error } = await supabase
+        const { data: userRoles, error: fallbackError } = await supabase
           .from('user_roles')
           .select('user_id, role, created_at')
           .order('created_at', { ascending: false });
         
-        if (error) throw error;
+        if (fallbackError) throw fallbackError;
         
-        return userRoles.map(ur => ({
+        return (userRoles || []).map(ur => ({
           id: ur.user_id,
           email: `User ${ur.user_id.slice(0, 8)}...`,
           role: ur.role as 'admin' | 'tenant',
           created_at: ur.created_at
         }));
       }
-      
-      return authUsers as UserWithRole[];
     }
   });
 
