@@ -224,12 +224,23 @@ export type Database = {
       }
     }
     Functions: {
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      set_user_role: {
+        Args: {
+          new_role: Database["public"]["Enums"]["user_role"]
+          user_uuid: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
