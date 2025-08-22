@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import InboxPage from "./pages/inbox";
 import InboxSetupPage from "./pages/inbox-setup";
 import ConversationPage from "./pages/conversation";
+import TicketsPage from "./pages/tickets";
 import TemplatesPage from "./pages/templates";
 import PropertiesPage from "./pages/properties";
 import TenantsPage from "./pages/tenants";
@@ -52,6 +53,13 @@ const App = () => (
               <ProtectedRoute>
                 <Layout>
                   <ConversationPage />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/tickets" element={
+              <ProtectedRoute>
+                <Layout>
+                  <TicketsPage />
                 </Layout>
               </ProtectedRoute>
             } />
