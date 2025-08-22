@@ -10,13 +10,13 @@ export default function TicketsPage() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
 
   const { data: tickets, isLoading, error } = useTickets({ 
     search, 
-    status: statusFilter, 
-    priority: priorityFilter 
+    status: statusFilter === "all" ? "" : statusFilter, 
+    priority: priorityFilter === "all" ? "" : priorityFilter 
   });
 
   const handleTicketClick = (ticket: Ticket) => {
@@ -76,7 +76,7 @@ export default function TicketsPage() {
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Status</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="open">Open</SelectItem>
               <SelectItem value="in_progress">In Progress</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
@@ -91,7 +91,7 @@ export default function TicketsPage() {
               <SelectValue placeholder="All Priority" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Priority</SelectItem>
+              <SelectItem value="all">All Priority</SelectItem>
               <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="high">High</SelectItem>
