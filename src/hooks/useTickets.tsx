@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type Ticket = {
@@ -61,7 +61,7 @@ export function useTickets({
 export async function updateTicketStatus(ticketId: string, status: string) {
   const { error } = await supabase
     .from("tickets")
-    .update({ status })
+    .update({ status, updated_at: new Date().toISOString() })
     .eq("id", ticketId);
 
   if (error) throw error;

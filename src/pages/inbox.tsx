@@ -15,6 +15,7 @@ import { useEmailThreads, type EmailThread } from "@/hooks/useEmailThreads";
 import { useTickets, type Ticket } from "@/hooks/useTickets";
 import { TicketRow } from "@/components/tickets/TicketRow";
 import { TicketDrawer } from "@/components/tickets/TicketDrawer";
+import { TicketKanbanBoard } from "@/components/tickets/TicketKanbanBoard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 
@@ -263,48 +264,33 @@ const handleTicketClick = (ticket: Ticket) => {
       </TabsContent>
 
       <TabsContent value="tickets" className="h-[calc(100%-3.5rem)]">
-        <div className="flex h-full relative">
-          {/* Tickets List */}
-          <div className="w-1/2 border-r border-border bg-gradient-card">
-            <div className="p-6 border-b border-border bg-card">
-              <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-semibold text-foreground">Tickets</h1>
-                <Badge variant="secondary" className="bg-primary-muted text-primary">
-                  {tickets.length} tickets
-                </Badge>
+        <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100">
+          {isLoadingTickets ? (
+            <div className="p-6">
+              <div className="grid grid-cols-5 gap-4">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="overflow-y-auto">
-              <div className="p-4 space-y-2">
-                {isLoadingTickets ? (
-                  <div className="space-y-3">
-                    {[...Array(5)].map((_, i) => (
-                      <Skeleton key={i} className="h-24 w-full" />
-                    ))}
-                  </div>
-                ) : tickets.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">
-                    <TicketIcon className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>No tickets yet</p>
-                    <p className="text-sm">Tenant tickets will appear here</p>
-                  </div>
-                ) : (
-                  tickets.map((ticket) => (
-                    <TicketRow key={ticket.id} ticket={ticket} onClick={() => handleTicketClick(ticket)} />
-                  ))
-                )}
+          ) : tickets.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-muted-foreground">
+                <TicketIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <h2 className="text-xl font-medium mb-2">No tickets yet</h2>
+                <p>Tenant tickets will appear here</p>
               </div>
             </div>
-          </div>
-
-          {/* Tickets Empty State */}
-          <div className="flex-1 flex items-center justify-center bg-muted/20">
-            <div className="text-center text-muted-foreground">
-              <TicketIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
-              <h2 className="text-xl font-medium mb-2">Select a ticket</h2>
-              <p>Choose a ticket from the list to view details</p>
-            </div>
-          </div>
+          ) : (
+            <TicketKanbanBoard 
+              tickets={tickets} 
+              onTicketClick={handleTicketClick}
+            />
+          )}
 
           {/* Ticket Details Drawer */}
           <TicketDrawer
