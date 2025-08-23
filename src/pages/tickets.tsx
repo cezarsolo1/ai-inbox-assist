@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTickets, type Ticket } from "@/hooks/useTickets";
 import { TicketKanbanBoard } from "@/components/tickets/TicketKanbanBoard";
 import { TicketInboxView } from "@/components/tickets/TicketInboxView";
@@ -8,8 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Filter } from "lucide-react";
 
 export default function TicketsPage() {
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"pending" | "orders">("pending");
@@ -20,14 +20,9 @@ export default function TicketsPage() {
   });
 
   const handleTicketClick = (ticket: Ticket) => {
-    setSelectedTicket(ticket);
-    setIsDrawerOpen(true);
+    navigate(`/tickets/${ticket.id}`);
   };
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
-    setSelectedTicket(null);
-  };
 
   if (isLoading) {
     return (
@@ -125,12 +120,6 @@ export default function TicketsPage() {
         </div>
       </div>
 
-      {/* Ticket Details Drawer */}
-      <TicketDrawer
-        ticket={selectedTicket}
-        isOpen={isDrawerOpen}
-        onClose={handleCloseDrawer}
-      />
     </div>
   );
 }

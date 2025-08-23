@@ -10,6 +10,7 @@ import InboxPage from "./pages/inbox";
 import InboxSetupPage from "./pages/inbox-setup";
 import ConversationPage from "./pages/conversation";
 import TicketsPage from "./pages/tickets";
+import TicketDetailPage from "./pages/ticket-detail";
 import PropertiesPage from "./pages/properties";
 import TenantsPage from "./pages/tenants";
 import AuthPage from "./pages/auth";
@@ -58,6 +59,13 @@ const App = () => (
               <ProtectedRoute>
                 <Layout>
                   <TicketsPage />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/tickets/:id" element={
+              <ProtectedRoute>
+                <Layout>
+                  <TicketDetailPage />
                 </Layout>
               </ProtectedRoute>
             } />
