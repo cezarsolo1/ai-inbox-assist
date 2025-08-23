@@ -1,7 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,15 +13,11 @@ export function Layout({ children }: LayoutProps) {
         <main className="flex-1 relative">
           {/* Toggle Button - Always visible in top-left */}
           <div className="absolute top-4 left-4 z-50">
-            <SidebarTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="bg-background/80 backdrop-blur-sm border-border/50 hover:bg-accent"
-              >
-                <Menu className="h-4 w-4" />
-              </Button>
-            </SidebarTrigger>
+            <SidebarTrigger
+              variant="outline"
+              size="sm"
+              className="bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-accent"
+            />
           </div>
           
           {/* Page Content */}
