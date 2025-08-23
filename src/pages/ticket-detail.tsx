@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronDown, X, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { type Ticket } from "@/hooks/useTickets";
 
 function getPriorityColor(priority: string): "default" | "secondary" | "destructive" | "outline" {
@@ -36,6 +37,33 @@ export default function TicketDetailPage() {
   const [noteTab, setNoteTab] = useState("new-note");
   const [noteText, setNoteText] = useState("");
   const [makeNoteVisible, setMakeNoteVisible] = useState(false);
+  const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
+  const [searchVendor, setSearchVendor] = useState("");
+  const [selectedVendor, setSelectedVendor] = useState<string | null>(null);
+
+  // Hardcoded vendor data
+  const vendors = [
+    { id: "1", name: "ABC Plumbing", contact: "abc@plumbing.com" },
+    { id: "2", name: "BestFix Repairs", contact: "info@bestfix.com" },
+    { id: "3", name: "Quick Response Services", contact: "help@quickresponse.com" },
+    { id: "4", name: "Elite Maintenance Co", contact: "contact@elitemaintenance.com" },
+    { id: "5", name: "ProFix Solutions", contact: "support@profix.com" },
+    { id: "6", name: "Reliable Service Group", contact: "service@reliable.com" },
+  ];
+
+  const filteredVendors = vendors.filter(vendor =>
+    vendor.name.toLowerCase().includes(searchVendor.toLowerCase())
+  );
+
+  const handleVendorSubmit = () => {
+    if (selectedVendor) {
+      const vendor = vendors.find(v => v.id === selectedVendor);
+      console.log("Selected vendor:", vendor);
+      setIsVendorModalOpen(false);
+      setSelectedVendor(null);
+      setSearchVendor("");
+    }
+  };
 
   const { data: ticket, isLoading } = useQuery({
     queryKey: ["ticket", id],
@@ -159,7 +187,10 @@ export default function TicketDetailPage() {
 
           {/* Action Button and Progress */}
           <div className="flex items-center justify-between mb-4">
-            <Button className="bg-primary text-primary-foreground">
+            <Button 
+              className="bg-primary text-primary-foreground"
+              onClick={() => setIsVendorModalOpen(true)}
+            >
               Take Action
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
@@ -331,6 +362,73 @@ export default function TicketDetailPage() {
           </Tabs>
         </div>
       </div>
+
+      {/* Finding Vendor Modal */}
+      <Dialog open={isVendorModalOpen} onOpenChange={setIsVendorModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">Finding Vendor</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                Select a vendor to assign this work order to:
+              </label>
+              
+              {/* Search Input */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search by Company Name"
+                  value={searchVendor}
+                  onChange={(e) => setSearchVendor(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+
+            {/* Vendor List */}
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {filteredVendors.length > 0 ? (
+                filteredVendors.map((vendor) => (
+                  <div
+                    key={vendor.id}
+                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                      selectedVendor === vendor.id
+                        ? 'bg-primary/10 border-primary text-primary'
+                        : 'bg-card border-border hover:bg-muted/50'
+                    }`}
+                    onClick={() => setSelectedVendor(vendor.id)}
+                  >
+                    <div className="font-medium text-sm">{vendor.name}</div>
+                    {vendor.contact && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {vendor.contact}
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground text-sm py-4">
+                  No vendors found matching "{searchVendor}"
+                </div>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex justify-end pt-4">
+              <Button 
+                onClick={handleVendorSubmit}
+                disabled={!selectedVendor}
+                className="bg-primary text-primary-foreground"
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
