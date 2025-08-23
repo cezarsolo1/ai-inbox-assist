@@ -46,10 +46,10 @@ export default function TicketsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background pt-16 pl-2 pr-2 pb-2">
-      {/* Header */}
-      <div className="flex-none p-2 border-b border-border bg-card/50">
-        <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-col h-full bg-background">
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-b border-border">
+        <div className="flex items-center justify-between gap-4 p-4 pl-6">
           {/* Left side - Title */}
           <div className="min-w-0 flex-shrink-0">
             <h1 className="text-xl font-semibold text-foreground">Work Orders</h1>
@@ -88,18 +88,21 @@ export default function TicketsPage() {
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
+                <SelectItem value="scheduling">Scheduling</SelectItem>
+                <SelectItem value="work_date_scheduled">Work Date Scheduled</SelectItem>
+                <SelectItem value="confirming_completion">Confirming Completion</SelectItem>
+                <SelectItem value="getting_invoice">Getting Invoice</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full p-2">
+      {/* Content with proper top margin for fixed header */}
+      <div className="flex-1 mt-[120px] overflow-hidden">
+        <div className="h-full">
           {tickets && (
             <>
               {viewMode === "pending" ? (
@@ -110,7 +113,7 @@ export default function TicketsPage() {
                   />
                 </div>
               ) : (
-                <div className="h-full overflow-y-auto">
+                <div className="h-full overflow-y-auto p-4">
                   <TicketInboxView 
                     tickets={tickets} 
                     onTicketClick={handleTicketClick} 
