@@ -2,11 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Clock, MapPin, AlertCircle, User, X } from "lucide-react";
+import { Clock, MapPin, AlertCircle, User, X, Play, CheckCircle, ArrowRight, Pause } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { updateTicketStatus } from "@/hooks/useTickets";
+import { useQueryClient } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import type { Ticket } from "@/hooks/useTickets";
 
 interface TicketDrawerProps {
@@ -46,6 +48,7 @@ const getStatusColor = (status: string) => {
 export function TicketDrawer({ ticket, isOpen, onClose }: TicketDrawerProps) {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleStatusUpdate = async (newStatus: string) => {
     if (!ticket) return;
@@ -53,11 +56,11 @@ export function TicketDrawer({ ticket, isOpen, onClose }: TicketDrawerProps) {
     setIsUpdatingStatus(true);
     try {
       await updateTicketStatus(ticket.id, newStatus);
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
       toast({
         title: "Success",
         description: "Ticket status updated successfully",
       });
-      // The query will auto-refresh and update the UI
     } catch (error) {
       toast({
         title: "Error",
@@ -68,6 +71,75 @@ export function TicketDrawer({ ticket, isOpen, onClose }: TicketDrawerProps) {
       setIsUpdatingStatus(false);
     }
   };
+
+  const getQuickActions = () => {
+    if (!ticket) return [];
+    
+    const actions = [];
+    
+    switch (ticket.status) {
+      case "open":
+        actions.push({ 
+          status: "in_progress", 
+          label: "Start Work", 
+          icon: Play, 
+          color: "bg-blue-500 hover:bg-blue-600" 
+        });
+        actions.push({ 
+          status: "pending", 
+          label: "Set Pending", 
+          icon: Pause, 
+          color: "bg-yellow-500 hover:bg-yellow-600" 
+        });
+        break;
+      case "in_progress":
+        actions.push({ 
+          status: "resolved", 
+          label: "Mark Complete", 
+          icon: CheckCircle, 
+          color: "bg-green-500 hover:bg-green-600" 
+        });
+        actions.push({ 
+          status: "pending", 
+          label: "Set Pending", 
+          icon: Pause, 
+          color: "bg-yellow-500 hover:bg-yellow-600" 
+        });
+        break;
+      case "pending":
+        actions.push({ 
+          status: "in_progress", 
+          label: "Resume Work", 
+          icon: Play, 
+          color: "bg-blue-500 hover:bg-blue-600" 
+        });
+        actions.push({ 
+          status: "resolved", 
+          label: "Mark Complete", 
+          icon: CheckCircle, 
+          color: "bg-green-500 hover:bg-green-600" 
+        });
+        break;
+      case "resolved":
+        actions.push({ 
+          status: "closed", 
+          label: "Close Ticket", 
+          icon: ArrowRight, 
+          color: "bg-gray-500 hover:bg-gray-600" 
+        });
+        actions.push({ 
+          status: "open", 
+          label: "Reopen", 
+          icon: ArrowRight, 
+          color: "bg-orange-500 hover:bg-orange-600" 
+        });
+        break;
+    }
+    
+    return actions;
+  };
+
+  const quickActions = getQuickActions();
 
   if (!ticket) return null;
 
@@ -101,6 +173,31 @@ export function TicketDrawer({ ticket, isOpen, onClose }: TicketDrawerProps) {
         </DrawerHeader>
 
         <div className="p-6 space-y-6">
+          {/* Quick Actions */}
+          {quickActions.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">Quick Actions</h3>
+              <div className="flex flex-wrap gap-2">
+                {quickActions.map((action) => (
+                  <Button
+                    key={action.status}
+                    size="sm"
+                    className={cn(
+                      "text-white border-0",
+                      action.color,
+                      isUpdatingStatus && "opacity-50 cursor-not-allowed"
+                    )}
+                    onClick={() => handleStatusUpdate(action.status)}
+                    disabled={isUpdatingStatus}
+                  >
+                    <action.icon className="w-4 h-4 mr-2" />
+                    {action.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Status Update */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Update Status</h3>
@@ -114,7 +211,8 @@ export function TicketDrawer({ ticket, isOpen, onClose }: TicketDrawerProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="resolved">Resolved</SelectItem>
                 <SelectItem value="closed">Closed</SelectItem>
               </SelectContent>

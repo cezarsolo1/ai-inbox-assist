@@ -82,7 +82,7 @@ export function TicketKanbanBoard({ tickets, onTicketClick }: TicketKanbanBoardP
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-foreground">Work Orders</h1>
-        <p className="text-muted-foreground">Drag tickets between columns to update their status</p>
+        <p className="text-muted-foreground">Drag tickets between columns or use quick action buttons to update status</p>
       </div>
 
       <DndContext
@@ -114,6 +114,7 @@ export function TicketKanbanBoard({ tickets, onTicketClick }: TicketKanbanBoardP
                 ticket={activeTicket}
                 onClick={() => {}}
                 isDragging={true}
+                showQuickActions={false}
               />
             </div>
           )}
