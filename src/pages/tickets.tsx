@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTickets, type Ticket } from "@/hooks/useTickets";
 import { TicketKanbanBoard } from "@/components/tickets/TicketKanbanBoard";
+import { TicketInboxView } from "@/components/tickets/TicketInboxView";
 import { TicketDrawer } from "@/components/tickets/TicketDrawer";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,12 +12,11 @@ export default function TicketsPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<"pending" | "orders">("pending");
 
   const { data: tickets, isLoading, error } = useTickets({ 
     search, 
-    status: statusFilter === "all" ? "" : statusFilter, 
-    priority: priorityFilter === "all" ? "" : priorityFilter 
+    status: statusFilter === "all" ? "" : statusFilter 
   });
 
   const handleTicketClick = (ticket: Ticket) => {
@@ -70,6 +70,16 @@ export default function TicketsPage() {
             />
           </div>
           
+          <Select value={viewMode} onValueChange={(value: "pending" | "orders") => setViewMode(value)}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="View" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pending">Pending Tickets</SelectItem>
+              <SelectItem value="orders">Open Orders</SelectItem>
+            </SelectContent>
+          </Select>
+          
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-40">
               <Filter className="w-4 h-4 mr-2" />
@@ -84,30 +94,30 @@ export default function TicketsPage() {
               <SelectItem value="closed">Closed</SelectItem>
             </SelectContent>
           </Select>
-
-          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-            <SelectTrigger className="w-40">
-              <Filter className="w-4 h-4 mr-2" />
-              <SelectValue placeholder="All Priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Priority</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
-      {/* Kanban Board */}
+      {/* Content */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-x-auto overflow-y-hidden p-6">
+        <div className="h-full p-6">
           {tickets && (
-            <TicketKanbanBoard 
-              tickets={tickets} 
-              onTicketClick={handleTicketClick} 
-            />
+            <>
+              {viewMode === "pending" ? (
+                <div className="h-full overflow-x-auto overflow-y-hidden">
+                  <TicketKanbanBoard 
+                    tickets={tickets} 
+                    onTicketClick={handleTicketClick} 
+                  />
+                </div>
+              ) : (
+                <div className="h-full overflow-y-auto">
+                  <TicketInboxView 
+                    tickets={tickets} 
+                    onTicketClick={handleTicketClick} 
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
