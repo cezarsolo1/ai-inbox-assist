@@ -90,12 +90,13 @@ const handleTicketClick = (ticket: Ticket) => {
   }
 
   return (
-    <Tabs defaultValue="whatsapp" className="h-full w-full">
-      <TabsList className="m-4">
-        <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
-        <TabsTrigger value="email">Email</TabsTrigger>
-        <TabsTrigger value="tickets">Tickets</TabsTrigger>
-      </TabsList>
+    <div className="h-full w-full pt-16 pl-4 pr-4 pb-4">
+      <Tabs defaultValue="whatsapp" className="h-full w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+          <TabsTrigger value="email">Email</TabsTrigger>
+          <TabsTrigger value="tickets">Tickets</TabsTrigger>
+        </TabsList>
 
       <TabsContent value="whatsapp" className="h-[calc(100%-3.5rem)]">
         <div className="flex h-full relative">
@@ -300,6 +301,7 @@ const handleTicketClick = (ticket: Ticket) => {
           />
         </div>
       </TabsContent>
-    </Tabs>
+      </Tabs>
+    </div>
   );
 }

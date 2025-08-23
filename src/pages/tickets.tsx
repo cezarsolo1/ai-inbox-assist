@@ -46,7 +46,7 @@ export default function TicketsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-background pt-16 pl-4 pr-4 pb-4">
       {/* Header */}
       <div className="flex-none p-6 border-b border-border bg-card/50">
         <div className="flex items-center justify-between mb-4">
