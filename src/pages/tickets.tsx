@@ -75,8 +75,8 @@ export default function TicketsPage() {
                 <SelectValue placeholder="View" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pending">Pending Tickets</SelectItem>
-                <SelectItem value="orders">Open Orders</SelectItem>
+                <SelectItem value="pending">Dashboard</SelectItem>
+                <SelectItem value="orders">Pending Tickets</SelectItem>
               </SelectContent>
             </Select>
             
