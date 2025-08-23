@@ -1,17 +1,14 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Inbox, MessageSquare, FileText, Building2, Users, Settings, LogOut, Grid3X3, Ticket } from "lucide-react";
+import { Inbox, MessageSquare, Building2, Users, LogOut, Ticket } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 const navigation = [
   { name: "Inbox", href: "/", icon: Inbox },
   { name: "Tickets", href: "/tickets", icon: Ticket },
-  { name: "Templates", href: "/templates", icon: FileText },
   { name: "Properties", href: "/properties", icon: Building2 },
   { name: "Tenants", href: "/tenants", icon: Users },
-  { name: "RACI Matrix", href: "/raci-matrix", icon: Grid3X3 },
-  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar() {

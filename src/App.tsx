@@ -10,10 +10,8 @@ import InboxPage from "./pages/inbox";
 import InboxSetupPage from "./pages/inbox-setup";
 import ConversationPage from "./pages/conversation";
 import TicketsPage from "./pages/tickets";
-import TemplatesPage from "./pages/templates";
 import PropertiesPage from "./pages/properties";
 import TenantsPage from "./pages/tenants";
-import RACIMatrixPage from "./pages/raci-matrix";
 import AuthPage from "./pages/auth";
 import NotFound from "./pages/NotFound";
 
@@ -63,13 +61,6 @@ const App = () => (
                 </Layout>
               </ProtectedRoute>
             } />
-            <Route path="/templates" element={
-              <ProtectedRoute>
-                <Layout>
-                  <TemplatesPage />
-                </Layout>
-              </ProtectedRoute>
-            } />
             <Route path="/properties" element={
               <ProtectedRoute>
                 <Layout>
@@ -88,20 +79,6 @@ const App = () => (
               <ProtectedRoute>
                 <Layout>
                   <TenantsPage />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/raci-matrix" element={
-              <ProtectedRoute>
-                <Layout>
-                  <RACIMatrixPage />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Layout>
-                  <div className="p-8 text-center text-muted-foreground">Settings page coming soon...</div>
                 </Layout>
               </ProtectedRoute>
             } />
