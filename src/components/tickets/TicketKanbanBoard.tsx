@@ -15,9 +15,8 @@ import { KanbanColumn } from "./KanbanColumn";
 import { DraggableTicketCard } from "./DraggableTicketCard";
 
 const TICKET_STATUSES = [
-  { id: "open", label: "Open", color: "bg-orange-100 border-orange-200" },
+  { id: "pending", label: "Pending", color: "bg-orange-100 border-orange-200" },
   { id: "in_progress", label: "In Progress", color: "bg-blue-100 border-blue-200" },
-  { id: "pending", label: "Pending", color: "bg-yellow-100 border-yellow-200" },
   { id: "resolved", label: "Resolved", color: "bg-green-100 border-green-200" },
   { id: "closed", label: "Closed", color: "bg-gray-100 border-gray-200" },
 ];
