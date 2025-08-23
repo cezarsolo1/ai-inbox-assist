@@ -46,13 +46,13 @@ export default function TicketsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-background pt-16 pl-4 pr-4 pb-4">
+    <div className="flex flex-col h-full bg-background pt-16 pl-2 pr-2 pb-2">
       {/* Header */}
-      <div className="flex-none p-4 border-b border-border bg-card/50">
+      <div className="flex-none p-2 border-b border-border bg-card/50">
         <div className="flex items-center justify-between gap-4">
           {/* Left side - Title */}
           <div className="min-w-0 flex-shrink-0">
-            <h1 className="text-xl font-semibold text-foreground">Tickets</h1>
+            <h1 className="text-xl font-semibold text-foreground">Work Orders</h1>
             <p className="text-xs text-muted-foreground">
               Manage property maintenance tickets
             </p>
@@ -99,7 +99,7 @@ export default function TicketsPage() {
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full p-6">
+        <div className="h-full p-2">
           {tickets && (
             <>
               {viewMode === "pending" ? (

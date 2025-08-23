@@ -78,12 +78,7 @@ export function TicketKanbanBoard({ tickets, onTicketClick }: TicketKanbanBoardP
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-foreground">Work Orders</h1>
-        <p className="text-muted-foreground">Drag tickets between columns to update their status</p>
-      </div>
-
+    <div className="p-2">
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
