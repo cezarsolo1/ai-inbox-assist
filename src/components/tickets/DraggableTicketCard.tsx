@@ -2,24 +2,16 @@ import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, ArrowRight, CheckCircle, Play, Pause } from "lucide-react";
-import { type Ticket, updateTicketStatus } from "@/hooks/useTickets";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { useState } from "react";
+import { Calendar, MapPin, Clock } from "lucide-react";
+import { type Ticket } from "@/hooks/useTickets";
 
 interface DraggableTicketCardProps {
   ticket: Ticket;
   onClick: (ticket: Ticket) => void;
   isDragging: boolean;
-  showQuickActions?: boolean;
 }
 
-export function DraggableTicketCard({ ticket, onClick, isDragging, showQuickActions = true }: DraggableTicketCardProps) {
-  const [isUpdating, setIsUpdating] = useState(false);
-  const queryClient = useQueryClient();
-  
+export function DraggableTicketCard({ ticket, onClick, isDragging }: DraggableTicketCardProps) {
   const { attributes, listeners, setNodeRef, transform, active } = useDraggable({
     id: ticket.id,
   });
@@ -27,38 +19,6 @@ export function DraggableTicketCard({ ticket, onClick, isDragging, showQuickActi
   const style = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
   } : undefined;
-
-  const handleStatusChange = async (newStatus: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    setIsUpdating(true);
-    try {
-      await updateTicketStatus(ticket.id, newStatus);
-      queryClient.invalidateQueries({ queryKey: ["tickets"] });
-      toast.success(`Ticket moved to ${newStatus}`);
-    } catch (error) {
-      toast.error("Failed to update ticket status");
-      console.error("Error updating ticket status:", error);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const getNextStatusAction = () => {
-    switch (ticket.status) {
-      case "open":
-        return { status: "in_progress", label: "Start", icon: Play, color: "bg-blue-500 hover:bg-blue-600" };
-      case "in_progress":
-        return { status: "resolved", label: "Complete", icon: CheckCircle, color: "bg-green-500 hover:bg-green-600" };
-      case "pending":
-        return { status: "in_progress", label: "Resume", icon: Play, color: "bg-blue-500 hover:bg-blue-600" };
-      case "resolved":
-        return { status: "closed", label: "Close", icon: ArrowRight, color: "bg-gray-500 hover:bg-gray-600" };
-      default:
-        return null;
-    }
-  };
-
-  const nextAction = getNextStatusAction();
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -122,40 +82,13 @@ export function DraggableTicketCard({ ticket, onClick, isDragging, showQuickActi
           </Badge>
         </div>
 
-        {/* Quick Action Button */}
-        {showQuickActions && nextAction && !isBeingDragged && (
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-            <div className="flex items-center gap-1 text-xs text-gray-400">
-              <Clock className="w-3 h-3" />
-              <span className="font-mono text-xs truncate">
-                ID: {ticket.id.slice(0, 8)}...
-              </span>
-            </div>
-            <Button
-              size="sm"
-              className={cn(
-                "text-xs px-2 py-1 h-6 text-white border-0",
-                nextAction.color,
-                isUpdating && "opacity-50 cursor-not-allowed"
-              )}
-              onClick={(e) => handleStatusChange(nextAction.status, e)}
-              disabled={isUpdating}
-            >
-              <nextAction.icon className="w-3 h-3 mr-1" />
-              {nextAction.label}
-            </Button>
-          </div>
-        )}
-
-        {/* Show ID when no quick action available */}
-        {(!showQuickActions || !nextAction) && (
-          <div className="flex items-center gap-1 text-xs text-gray-400">
-            <Clock className="w-3 h-3" />
-            <span className="font-mono text-xs truncate">
-              ID: {ticket.id.slice(0, 8)}...
-            </span>
-          </div>
-        )}
+        {/* Tenant ID (for reference) */}
+        <div className="flex items-center gap-1 text-xs text-gray-400">
+          <Clock className="w-3 h-3" />
+          <span className="font-mono text-xs truncate">
+            ID: {ticket.id.slice(0, 8)}...
+          </span>
+        </div>
       </div>
     </Card>
   );
