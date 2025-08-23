@@ -91,6 +91,8 @@ export default function TicketDetailPage() {
       setSelectedCompany("");
       setSelectedEmployee("");
       setSearchVendor("");
+      // Navigate to vendor confirmation page
+      navigate(`/vendor/${id}`);
     }
   };
 

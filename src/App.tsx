@@ -11,6 +11,7 @@ import InboxSetupPage from "./pages/inbox-setup";
 import ConversationPage from "./pages/conversation";
 import TicketsPage from "./pages/tickets";
 import TicketDetailPage from "./pages/ticket-detail";
+import VendorConfirmationPage from "./pages/vendor-confirmation";
 import PropertiesPage from "./pages/properties";
 import TenantsPage from "./pages/tenants";
 import AuthPage from "./pages/auth";
@@ -69,6 +70,7 @@ const App = () => (
                 </Layout>
               </ProtectedRoute>
             } />
+            <Route path="/vendor/:jobId" element={<VendorConfirmationPage />} />
             <Route path="/properties" element={
               <ProtectedRoute>
                 <Layout>
