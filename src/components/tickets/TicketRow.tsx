@@ -24,14 +24,20 @@ const getPriorityColor = (priority: string) => {
 
 const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
-    case "open":
+    case "pending":
       return "default";
-    case "in-progress":
+    case "scheduling":
       return "secondary";
-    case "resolved":
+    case "work_date_scheduled":
       return "outline";
-    case "closed":
+    case "confirming_completion":
       return "secondary";
+    case "getting_invoice":
+      return "default";
+    case "completed":
+      return "outline";
+    case "cancelled":
+      return "destructive";
     default:
       return "default";
   }

@@ -10,16 +10,20 @@ interface TicketInboxViewProps {
 
 function getStatusColor(status: string): "default" | "secondary" | "destructive" | "outline" {
   switch (status.toLowerCase()) {
-    case "open":
-      return "destructive";
-    case "in_progress":
-      return "secondary";
     case "pending":
       return "outline";
-    case "resolved":
-      return "default";
-    case "closed":
+    case "scheduling":
       return "secondary";
+    case "work_date_scheduled":
+      return "default";
+    case "confirming_completion":
+      return "secondary";
+    case "getting_invoice":
+      return "default";
+    case "completed":
+      return "outline";
+    case "cancelled":
+      return "destructive";
     default:
       return "outline";
   }

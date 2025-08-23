@@ -16,9 +16,12 @@ import { DraggableTicketCard } from "./DraggableTicketCard";
 
 const TICKET_STATUSES = [
   { id: "pending", label: "Pending", color: "bg-orange-100 border-orange-200" },
-  { id: "in_progress", label: "In Progress", color: "bg-blue-100 border-blue-200" },
-  { id: "resolved", label: "Resolved", color: "bg-green-100 border-green-200" },
-  { id: "closed", label: "Closed", color: "bg-gray-100 border-gray-200" },
+  { id: "scheduling", label: "Scheduling", color: "bg-yellow-100 border-yellow-200" },
+  { id: "work_date_scheduled", label: "Work Date Scheduled", color: "bg-blue-100 border-blue-200" },
+  { id: "confirming_completion", label: "Confirming Completion", color: "bg-purple-100 border-purple-200" },
+  { id: "getting_invoice", label: "Getting Invoice", color: "bg-indigo-100 border-indigo-200" },
+  { id: "completed", label: "Completed", color: "bg-green-100 border-green-200" },
+  { id: "cancelled", label: "Cancelled", color: "bg-red-100 border-red-200" },
 ];
 
 interface TicketKanbanBoardProps {

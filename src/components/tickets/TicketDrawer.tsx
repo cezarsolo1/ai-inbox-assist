@@ -30,14 +30,20 @@ const getPriorityColor = (priority: string) => {
 
 const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
-    case "open":
+    case "pending":
       return "default";
-    case "in-progress":
+    case "scheduling":
       return "secondary";
-    case "resolved":
+    case "work_date_scheduled":
       return "outline";
-    case "closed":
+    case "confirming_completion":
       return "secondary";
+    case "getting_invoice":
+      return "default";
+    case "completed":
+      return "outline";
+    case "cancelled":
+      return "destructive";
     default:
       return "default";
   }
@@ -113,10 +119,13 @@ export function TicketDrawer({ ticket, isOpen, onClose }: TicketDrawerProps) {
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="scheduling">Scheduling</SelectItem>
+                <SelectItem value="work_date_scheduled">Work Date Scheduled</SelectItem>
+                <SelectItem value="confirming_completion">Confirming Completion</SelectItem>
+                <SelectItem value="getting_invoice">Getting Invoice</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
