@@ -44,7 +44,7 @@ export function KanbanColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          "min-h-[400px] p-2 space-y-2 border-2 border-t-0 rounded-b-lg bg-white/50",
+          "min-h-[400px] max-h-[600px] overflow-y-auto p-2 space-y-2 border-2 border-t-0 rounded-b-lg bg-white/50",
           color.replace('bg-', 'border-').replace('100', '200'),
           isOver && "bg-primary/5 ring-2 ring-primary ring-offset-2",
           isUpdating && "pointer-events-none opacity-50"
