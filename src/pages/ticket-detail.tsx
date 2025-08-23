@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronDown, X, Search } from "lucide-react";
+import { ArrowLeft, ChevronDown, X, Search, Phone, Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -39,28 +39,57 @@ export default function TicketDetailPage() {
   const [makeNoteVisible, setMakeNoteVisible] = useState(false);
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
   const [searchVendor, setSearchVendor] = useState("");
-  const [selectedVendor, setSelectedVendor] = useState<string | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<string>("");
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("");
 
-  // Hardcoded vendor data
-  const vendors = [
-    { id: "1", name: "ABC Plumbing", contact: "abc@plumbing.com" },
-    { id: "2", name: "BestFix Repairs", contact: "info@bestfix.com" },
-    { id: "3", name: "Quick Response Services", contact: "help@quickresponse.com" },
-    { id: "4", name: "Elite Maintenance Co", contact: "contact@elitemaintenance.com" },
-    { id: "5", name: "ProFix Solutions", contact: "support@profix.com" },
-    { id: "6", name: "Reliable Service Group", contact: "service@reliable.com" },
-  ];
+  // Enhanced vendor data with employees
+  const vendorData = {
+    "ghengis-plumbing": {
+      id: "ghengis-plumbing",
+      name: "Ghengis Plumbing",
+      employees: [
+        { id: "ghengis-khan", name: "Ghengis Khan", phone: "(510) 557-4475", email: "ethan+khan@latchel.com" },
+        { id: "john-doe", name: "John Doe", phone: "(510) 555-0123", email: "john.doe@ghengisplumbing.com" }
+      ]
+    },
+    "quickfix-services": {
+      id: "quickfix-services", 
+      name: "QuickFix Services",
+      employees: [
+        { id: "maria-smith", name: "Maria Smith", phone: "(415) 555-0199", email: "maria@quickfix.com" },
+        { id: "carlos-rodriguez", name: "Carlos Rodriguez", phone: "(415) 555-0187", email: "carlos@quickfix.com" }
+      ]
+    },
+    "abc-maintenance": {
+      id: "abc-maintenance",
+      name: "ABC Maintenance", 
+      employees: [
+        { id: "sarah-johnson", name: "Sarah Johnson", phone: "(650) 555-0156", email: "sarah@abcmaintenance.com" },
+        { id: "mike-wilson", name: "Mike Wilson", phone: "(650) 555-0134", email: "mike@abcmaintenance.com" }
+      ]
+    }
+  };
 
-  const filteredVendors = vendors.filter(vendor =>
-    vendor.name.toLowerCase().includes(searchVendor.toLowerCase())
+  const companies = Object.values(vendorData);
+  const filteredCompanies = companies.filter(company =>
+    company.name.toLowerCase().includes(searchVendor.toLowerCase())
   );
 
+  const selectedCompanyData = selectedCompany ? vendorData[selectedCompany as keyof typeof vendorData] : null;
+  const selectedEmployeeData = selectedCompanyData && selectedEmployee 
+    ? selectedCompanyData.employees.find(emp => emp.id === selectedEmployee) 
+    : null;
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
   const handleVendorSubmit = () => {
-    if (selectedVendor) {
-      const vendor = vendors.find(v => v.id === selectedVendor);
-      console.log("Selected vendor:", vendor);
+    if (selectedCompany && selectedEmployee && selectedEmployeeData) {
+      console.log("Assigned job to:", selectedEmployeeData);
       setIsVendorModalOpen(false);
-      setSelectedVendor(null);
+      setSelectedCompany("");
+      setSelectedEmployee("");
       setSearchVendor("");
     }
   };
@@ -365,7 +394,7 @@ export default function TicketDetailPage() {
 
       {/* Finding Vendor Modal */}
       <Dialog open={isVendorModalOpen} onOpenChange={setIsVendorModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">Finding Vendor</DialogTitle>
           </DialogHeader>
@@ -376,7 +405,7 @@ export default function TicketDetailPage() {
                 Select a vendor to assign this work order to:
               </label>
               
-              {/* Search Input */}
+              {/* Company Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
@@ -386,41 +415,97 @@ export default function TicketDetailPage() {
                   className="pl-9"
                 />
               </div>
-            </div>
 
-            {/* Vendor List */}
-            <div className="space-y-2 max-h-[300px] overflow-y-auto">
-              {filteredVendors.length > 0 ? (
-                filteredVendors.map((vendor) => (
-                  <div
-                    key={vendor.id}
-                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                      selectedVendor === vendor.id
-                        ? 'bg-primary/10 border-primary text-primary'
-                        : 'bg-card border-border hover:bg-muted/50'
-                    }`}
-                    onClick={() => setSelectedVendor(vendor.id)}
-                  >
-                    <div className="font-medium text-sm">{vendor.name}</div>
-                    {vendor.contact && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {vendor.contact}
-                      </div>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-muted-foreground text-sm py-4">
-                  No vendors found matching "{searchVendor}"
+              {/* Company Dropdown */}
+              {searchVendor && (
+                <div className="space-y-1 max-h-[120px] overflow-y-auto border rounded-lg">
+                  {filteredCompanies.map((company) => (
+                    <div
+                      key={company.id}
+                      className={`p-2 cursor-pointer hover:bg-muted/50 ${
+                        selectedCompany === company.id ? 'bg-primary/10' : ''
+                      }`}
+                      onClick={() => {
+                        setSelectedCompany(company.id);
+                        setSearchVendor(company.name);
+                        setSelectedEmployee("");
+                      }}
+                    >
+                      {company.name}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
+
+            {/* Employee Dropdown */}
+            {selectedCompanyData && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Select Employee:
+                </label>
+                <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an employee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedCompanyData.employees.map((employee) => (
+                      <SelectItem key={employee.id} value={employee.id}>
+                        {employee.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Vendor Details Card */}
+            {selectedEmployeeData && (
+              <div className="p-4 border rounded-lg bg-card">
+                <div className="flex items-start gap-3">
+                  {/* Avatar Circle */}
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                    {getInitials(selectedEmployeeData.name)}
+                  </div>
+                  
+                  {/* Details */}
+                  <div className="flex-1 space-y-2">
+                    <div>
+                      <div className="font-medium text-sm">{selectedCompanyData.name}</div>
+                      <div className="text-sm text-muted-foreground">{selectedEmployeeData.name}</div>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Phone className="h-3 w-3" />
+                        {selectedEmployeeData.phone}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        {selectedEmployeeData.email}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Confirmation Text */}
+            {selectedEmployeeData && (
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <div className="text-sm font-medium mb-2">By submitting this action:</div>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>This job will be assigned to {selectedEmployeeData.name}.</li>
+                  <li>We will send a message to the vendor asking them to schedule this job.</li>
+                </ul>
+              </div>
+            )}
 
             {/* Submit Button */}
             <div className="flex justify-end pt-4">
               <Button 
                 onClick={handleVendorSubmit}
-                disabled={!selectedVendor}
+                disabled={!selectedCompany || !selectedEmployee}
                 className="bg-primary text-primary-foreground"
               >
                 Submit
