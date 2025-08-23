@@ -47,20 +47,18 @@ export function Layout({ children }: LayoutProps) {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <main className="flex-1 relative">
-          {/* Toggle Button - Appears on hover near left edge */}
+          {/* Toggle Button - On left edge, positioned lower */}
           <div 
-            className={`absolute top-4 z-50 transition-all duration-300 ${
-              isTicketDetailPage ? 'left-16' : 'left-4'
-            } ${
+            className={`fixed left-0 top-1/2 -translate-y-1/2 z-50 transition-all duration-300 ${
               showSidebarTrigger 
                 ? 'opacity-100 translate-x-0' 
-                : 'opacity-0 -translate-x-2 pointer-events-none'
+                : 'opacity-0 -translate-x-full pointer-events-none'
             }`}
           >
             <SidebarTrigger
               variant="outline"
               size="sm"
-              className="bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-accent"
+              className="bg-background/80 backdrop-blur-sm border border-border/50 hover:bg-accent rounded-r-md rounded-l-none"
             />
           </div>
           
