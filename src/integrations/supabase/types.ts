@@ -223,6 +223,138 @@ export type Database = {
         }
         Relationships: []
       }
+      tickets_inbox: {
+        Row: {
+          access_method: string | null
+          access_permission: string | null
+          alarm_details: string | null
+          auto_send: boolean | null
+          availability_slots: Json | null
+          building_key: string | null
+          city: string | null
+          client_nonce: string | null
+          consent_personal_data: boolean | null
+          consent_terms: boolean | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          contractor_id: string | null
+          cost_acknowledgment: boolean | null
+          created_at: string
+          decision_path: Json | null
+          description: string | null
+          duplicate_of: string | null
+          extra_instructions: string | null
+          has_alarm: boolean | null
+          has_pets: boolean | null
+          id: string
+          intercom_details: string | null
+          key_box_details: string | null
+          leaf_type: string | null
+          neighbor_details: string | null
+          notes_for_contractor: string | null
+          occupant_email: string | null
+          occupant_name: string | null
+          occupant_phone: string | null
+          pet_details: string | null
+          photo_paths: Json | null
+          postal_code: string | null
+          ref_code: string | null
+          source_channel: string | null
+          special_notes: string | null
+          status: string | null
+          street_address: string | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_method?: string | null
+          access_permission?: string | null
+          alarm_details?: string | null
+          auto_send?: boolean | null
+          availability_slots?: Json | null
+          building_key?: string | null
+          city?: string | null
+          client_nonce?: string | null
+          consent_personal_data?: boolean | null
+          consent_terms?: boolean | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contractor_id?: string | null
+          cost_acknowledgment?: boolean | null
+          created_at?: string
+          decision_path?: Json | null
+          description?: string | null
+          duplicate_of?: string | null
+          extra_instructions?: string | null
+          has_alarm?: boolean | null
+          has_pets?: boolean | null
+          id?: string
+          intercom_details?: string | null
+          key_box_details?: string | null
+          leaf_type?: string | null
+          neighbor_details?: string | null
+          notes_for_contractor?: string | null
+          occupant_email?: string | null
+          occupant_name?: string | null
+          occupant_phone?: string | null
+          pet_details?: string | null
+          photo_paths?: Json | null
+          postal_code?: string | null
+          ref_code?: string | null
+          source_channel?: string | null
+          special_notes?: string | null
+          status?: string | null
+          street_address?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_method?: string | null
+          access_permission?: string | null
+          alarm_details?: string | null
+          auto_send?: boolean | null
+          availability_slots?: Json | null
+          building_key?: string | null
+          city?: string | null
+          client_nonce?: string | null
+          consent_personal_data?: boolean | null
+          consent_terms?: boolean | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contractor_id?: string | null
+          cost_acknowledgment?: boolean | null
+          created_at?: string
+          decision_path?: Json | null
+          description?: string | null
+          duplicate_of?: string | null
+          extra_instructions?: string | null
+          has_alarm?: boolean | null
+          has_pets?: boolean | null
+          id?: string
+          intercom_details?: string | null
+          key_box_details?: string | null
+          leaf_type?: string | null
+          neighbor_details?: string | null
+          notes_for_contractor?: string | null
+          occupant_email?: string | null
+          occupant_name?: string | null
+          occupant_phone?: string | null
+          pet_details?: string | null
+          photo_paths?: Json | null
+          postal_code?: string | null
+          ref_code?: string | null
+          source_channel?: string | null
+          special_notes?: string | null
+          status?: string | null
+          street_address?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
