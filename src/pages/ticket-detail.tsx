@@ -443,14 +443,14 @@ export default function TicketDetailPage() {
                                   <span className="text-sm font-medium text-primary">CS</span>
                                 </div>
                                 <div>
-                                  <div className="font-medium text-foreground">Cezar Solovastru</div>
+                                  <div className="font-medium text-foreground">Friso Schmidt</div>
                                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <Phone className="h-3 w-3" />
                                     +31681874782
                                   </div>
                                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <Mail className="h-3 w-3" />
-                                    solovastrucezar@gmail.com
+                                    frisoschmidt@gmail.com
                                   </div>
                                 </div>
                               </div>
