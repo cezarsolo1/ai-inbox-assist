@@ -31,7 +31,7 @@ const App = () => (
             <Route path="/" element={
               <ProtectedRoute>
                 <Layout>
-                  <InboxPage />
+                  <TicketsPage />
                 </Layout>
               </ProtectedRoute>
             } />
