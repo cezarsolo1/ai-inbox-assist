@@ -370,7 +370,7 @@ export default function TicketDetailPage() {
                                   {ticket.property_address || "999 Nine St. 9"}
                                 </div>
                                 <div className="text-sm text-muted-foreground">
-                                  Northridge, CA 91326
+                                  Noord Holland
                                 </div>
                               </div>
                             </div>
@@ -440,17 +440,17 @@ export default function TicketDetailPage() {
                             <div className="space-y-3">
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                  <span className="text-sm font-medium text-primary">JD</span>
+                                  <span className="text-sm font-medium text-primary">CS</span>
                                 </div>
                                 <div>
-                                  <div className="font-medium text-foreground">John Doe</div>
+                                  <div className="font-medium text-foreground">Cezar Solovastru</div>
                                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <Phone className="h-3 w-3" />
-                                    (555) 123-4567
+                                    +31681874782
                                   </div>
                                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <Mail className="h-3 w-3" />
-                                    john.doe@email.com
+                                    solovastrucezar@gmail.com
                                   </div>
                                 </div>
                               </div>
