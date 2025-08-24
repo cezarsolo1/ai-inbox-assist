@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, ChevronDown, X, Search, Phone, Mail } from "lucide-react";
+import { sendWhatsAppReply } from "@/lib/sendOutbound";
+import { FRISO_PHONE_NUMBER } from "@/lib/config";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -42,6 +45,7 @@ export default function TicketDetailPage() {
   const [searchVendor, setSearchVendor] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
+  const [isSending, setIsSending] = useState(false);
 
   // Enhanced vendor data with employees
   const vendorData = {
@@ -85,15 +89,43 @@ export default function TicketDetailPage() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  const handleVendorSubmit = () => {
-    if (selectedCompany && selectedEmployee && selectedEmployeeData) {
-      console.log("Assigned job to:", selectedEmployeeData);
-      setIsVendorModalOpen(false);
-      setSelectedCompany("");
-      setSelectedEmployee("");
-      setSearchVendor("");
-      // Navigate to vendor confirmation page
-      navigate(`/vendor/${id}`);
+  const handleVendorSubmit = async () => {
+    if (selectedCompany && selectedEmployee && selectedEmployeeData && !isSending) {
+      setIsSending(true);
+      
+      try {
+        // Show sending state in UI
+        toast.loading("Sending notification to vendor...", { id: "vendor-notification" });
+        
+        // Send WhatsApp message to Friso
+        const message = "You have 1 job that need to be scheduled. We've already collected the tenant's schedule. Please go to this link to schedule yours: https://preview--blocklane-contractor.lovable.app/plan . The code is 39303.";
+        
+        // Send the WhatsApp message
+        const messageId = await sendWhatsAppReply({
+          to: FRISO_PHONE_NUMBER,
+          text: message,
+          threadId: id,
+          tenantId: ticket?.tenant_id || undefined
+        });
+
+        // Success - message has been sent AND saved to conversation
+        toast.success("Notification sent to vendor successfully!", { id: "vendor-notification" });
+        console.log("Vendor assigned and notified for job:", id, "Message ID:", messageId);
+        
+        // Reset modal state
+        setIsVendorModalOpen(false);
+        setSelectedCompany("");
+        setSelectedEmployee("");
+        setSearchVendor("");
+        
+        // Navigate to vendor confirmation page
+        navigate(`/vendor/${id}`);
+      } catch (error) {
+        console.error("Failed to send WhatsApp message:", error);
+        toast.error("Failed to send notification to vendor. Please try again.", { id: "vendor-notification" });
+      } finally {
+        setIsSending(false);
+      }
     }
   };
 
@@ -643,10 +675,10 @@ export default function TicketDetailPage() {
             <div className="flex justify-end pt-4">
               <Button 
                 onClick={handleVendorSubmit}
-                disabled={!selectedCompany || !selectedEmployee}
+                disabled={!selectedCompany || !selectedEmployee || isSending}
                 className="bg-primary text-primary-foreground"
               >
-                Submit
+                {isSending ? "Sending..." : "Submit"}
               </Button>
             </div>
           </div>

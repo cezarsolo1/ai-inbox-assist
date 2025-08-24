@@ -7,9 +7,6 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Ticket } from "@/hooks/useTickets";
-import { sendWhatsAppReply } from "@/lib/sendOutbound";
-import { FRISO_PHONE_NUMBER } from "@/lib/config";
-import { toast } from "sonner";
 
 export default function VendorConfirmationPage() {
   const { jobId } = useParams();
@@ -75,40 +72,12 @@ export default function VendorConfirmationPage() {
     attachments: [] // This would come from a ticket_attachments table
   };
 
-  const [isSending, setIsSending] = useState(false);
+  
 
-  const handleScheduleSelect = async () => {
-    if (isSending) return; // Prevent double-clicks
-    
-    setIsSending(true);
-    
-    try {
-      // Show sending state in UI
-      toast.loading("Sending notification to vendor...", { id: "vendor-notification" });
-      
-      // Send WhatsApp message to Friso
-      const message = "You have 1 job that need to be scheduled. We've already collected the tenant's schedule. Please go to this link to schedule yours: https://preview--blocklane-contractor.lovable.app/plan . The code is 39303.";
-      
-      // This will now only save to database after successful send
-      const messageId = await sendWhatsAppReply({
-        to: FRISO_PHONE_NUMBER,
-        text: message,
-        threadId: jobId,
-        tenantId: ticket.tenant_id || undefined
-      });
-
-      // Success - message has been sent AND saved to conversation
-      toast.success("Notification sent to vendor successfully!", { id: "vendor-notification" });
-      console.log("Vendor accepted job:", jobId, "Message ID:", messageId);
-      
-      // Navigate to success page or back to vendor dashboard
-      navigate("/");
-    } catch (error) {
-      console.error("Failed to send WhatsApp message:", error);
-      toast.error("Failed to send notification to vendor. Please try again.", { id: "vendor-notification" });
-    } finally {
-      setIsSending(false);
-    }
+  const handleScheduleSelect = () => {
+    // Just navigate to scheduling page - no WhatsApp functionality
+    console.log("Navigating to schedule selection for job:", jobId);
+    navigate("/");
   };
 
   const handleFindSomeoneElse = () => {
