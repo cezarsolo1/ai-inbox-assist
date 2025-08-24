@@ -206,7 +206,7 @@ export type Database = {
           property_address?: string | null
           status?: string
           tenant_id?: string | null
-          title: string
+          title?: string
           updated_at?: string
         }
         Update: {
