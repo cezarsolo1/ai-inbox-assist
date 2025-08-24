@@ -7,6 +7,9 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Ticket } from "@/hooks/useTickets";
+import { sendWhatsAppReply } from "@/lib/sendOutbound";
+import { FRISO_PHONE_NUMBER } from "@/lib/config";
+import { toast } from "sonner";
 
 export default function VendorConfirmationPage() {
   const { jobId } = useParams();
@@ -72,11 +75,27 @@ export default function VendorConfirmationPage() {
     attachments: [] // This would come from a ticket_attachments table
   };
 
-  const handleScheduleSelect = () => {
-    // Handle vendor acceptance
-    console.log("Vendor accepted job:", jobId);
-    // Navigate to success page or back to vendor dashboard
-    navigate("/");
+  const handleScheduleSelect = async () => {
+    try {
+      // Send WhatsApp message to Friso
+      const message = "You have 1 job that need to be scheduled. We've already collected the tenant's schedule. Please go to this link to schedule yours: https://preview--blocklane-contractor.lovable.app/plan . The code is 39303.";
+      
+      await sendWhatsAppReply({
+        to: FRISO_PHONE_NUMBER,
+        text: message,
+        threadId: jobId,
+        tenantId: ticket.tenant_id || undefined
+      });
+
+      toast.success("Notification sent to vendor successfully!");
+      console.log("Vendor accepted job:", jobId);
+      
+      // Navigate to success page or back to vendor dashboard
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to send WhatsApp message:", error);
+      toast.error("Failed to send notification to vendor");
+    }
   };
 
   const handleFindSomeoneElse = () => {
