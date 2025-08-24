@@ -107,7 +107,7 @@ export default function TicketDetailPage() {
         toast.loading("Sending notification to vendor...", { id: "vendor-notification" });
         
         // Send WhatsApp message to Friso
-        const message = `You have 1 job that needs to be scheduled. Company: ${selectedCompanyData.name}. Please go to this link to schedule: monteur.blocklane.nl/plan. The code is 39303.`;
+        const message = `You have 1 job that needs to be scheduled. Company: ${selectedCompanyData.name}. Please go to this link to schedule: https://monteur.blocklane.nl/plan. The code is 39303.`;
         
         // Send the WhatsApp message
         const messageId = await sendWhatsAppReply({
