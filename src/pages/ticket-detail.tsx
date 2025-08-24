@@ -6,6 +6,7 @@ import { FRISO_PHONE_NUMBER } from "@/lib/config";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,7 @@ function getPriorityColor(priority: string): "default" | "secondary" | "destruct
 export default function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("details");
   const [noteTab, setNoteTab] = useState("new-note");
@@ -104,7 +106,7 @@ export default function TicketDetailPage() {
       
       try {
         // Show sending state in UI
-        toast.loading("Sending notification to vendor...", { id: "vendor-notification" });
+        toast.loading(t("ticketDetail.sendingNotification"), { id: "vendor-notification" });
         
         // Send WhatsApp message to Friso
         const message = `You have 1 job that needs to be scheduled. Company: ${selectedCompanyData.name}. Please go to this link to schedule: https://monteur.blocklane.nl/plan. The code is 39303.`;
@@ -118,7 +120,7 @@ export default function TicketDetailPage() {
         });
 
         // Success - message has been sent AND saved to conversation
-        toast.success("Notification sent to vendor successfully!", { id: "vendor-notification" });
+        toast.success(t("ticketDetail.notificationSent"), { id: "vendor-notification" });
         console.log("Vendor assigned and notified for job:", id, "Message ID:", messageId);
         
         // Update ticket status to scheduling after successful vendor notification
@@ -133,7 +135,7 @@ export default function TicketDetailPage() {
               console.error("Failed to update ticket status:", updateError);
               toast.error("Vendor notified but failed to update ticket status");
             } else {
-              toast.success("Ticket moved to scheduling status");
+              toast.success(t("ticketDetail.ticketMovedToScheduling"));
             }
           } catch (statusError) {
             console.error("Error updating ticket status:", statusError);
@@ -147,7 +149,7 @@ export default function TicketDetailPage() {
         setUseRecommendedVendor(true);
       } catch (error) {
         console.error("Failed to send WhatsApp message:", error);
-        toast.error("Failed to send notification to vendor. Please try again.", { id: "vendor-notification" });
+        toast.error(t("ticketDetail.failedToSend"), { id: "vendor-notification" });
       } finally {
         setIsSending(false);
       }
@@ -180,7 +182,7 @@ export default function TicketDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-muted-foreground">Loading ticket...</div>
+        <div className="text-muted-foreground">{t("ticketDetail.loadingTicket")}</div>
       </div>
     );
   }
@@ -188,7 +190,7 @@ export default function TicketDetailPage() {
   if (!ticket) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-destructive">Ticket not found</div>
+        <div className="text-destructive">{t("ticketDetail.ticketNotFound")}</div>
       </div>
     );
   }
@@ -221,7 +223,7 @@ export default function TicketDetailPage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <div className="text-sm text-muted-foreground">Work Order</div>
+              <div className="text-sm text-muted-foreground">{t("ticketDetail.workOrder")}</div>
               <h1 className="text-xl font-semibold text-foreground">
                 {ticket.id.slice(0, 8)}
               </h1>
@@ -233,7 +235,7 @@ export default function TicketDetailPage() {
             <h2 className="text-lg font-bold text-foreground mb-2">{ticket.title}</h2>
             <div className="flex items-center gap-4">
               <div>
-                <div className="text-xs text-muted-foreground">Priority</div>
+                <div className="text-xs text-muted-foreground">{t("ticketDetail.priority")}</div>
                 <Badge variant={getPriorityColor(ticket.priority)} className="capitalize">
                   {ticket.priority}
                 </Badge>
@@ -244,10 +246,10 @@ export default function TicketDetailPage() {
           {/* Form Fields Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div>
-              <label className="text-xs text-muted-foreground">Category</label>
+              <label className="text-xs text-muted-foreground">{t("ticketDetail.category")}</label>
               <Select value={ticket.category}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Search for a job trade category" />
+                  <SelectValue placeholder={t("ticketDetail.searchJobCategory")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="general">General</SelectItem>
@@ -259,7 +261,7 @@ export default function TicketDetailPage() {
             </div>
             
             <div>
-              <label className="text-xs text-muted-foreground">Approved Budget</label>
+              <label className="text-xs text-muted-foreground">{t("ticketDetail.approvedBudget")}</label>
               <div className="flex items-center gap-1">
                 <span className="text-sm">$</span>
                 <Input placeholder="200" className="text-sm" />
@@ -267,7 +269,7 @@ export default function TicketDetailPage() {
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Hard Budget Limit</label>
+              <label className="text-xs text-muted-foreground">{t("ticketDetail.hardBudgetLimit")}</label>
               <div className="flex items-center gap-1">
                 <span className="text-sm">$</span>
                 <Input placeholder="1000" className="text-sm" />
@@ -275,8 +277,8 @@ export default function TicketDetailPage() {
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Scheduled Work Date</label>
-              <Input placeholder="Not scheduled yet" className="text-sm" />
+              <label className="text-xs text-muted-foreground">{t("ticketDetail.scheduledWorkDate")}</label>
+              <Input placeholder={t("ticketDetail.notScheduledYet")} className="text-sm" />
             </div>
           </div>
 
@@ -286,7 +288,7 @@ export default function TicketDetailPage() {
               className="bg-primary text-primary-foreground"
               onClick={() => setIsVendorModalOpen(true)}
             >
-              Take Action
+              {t("ticketDetail.takeAction")}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
 
@@ -333,7 +335,7 @@ export default function TicketDetailPage() {
                         <CollapsibleTrigger asChild>
                           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                             <CardTitle className="text-base flex items-center justify-between">
-                              Description
+                              {t("ticketDetail.description")}
                               <ChevronDown className={`h-4 w-4 transition-transform ${isDescriptionOpen ? 'rotate-180' : ''}`} />
                             </CardTitle>
                           </CardHeader>
@@ -354,7 +356,7 @@ export default function TicketDetailPage() {
                         <CollapsibleTrigger asChild>
                           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                             <CardTitle className="text-base flex items-center justify-between">
-                              Property
+                              {t("ticketDetail.property")}
                               <ChevronDown className="h-4 w-4" />
                             </CardTitle>
                           </CardHeader>
@@ -385,7 +387,7 @@ export default function TicketDetailPage() {
                         <CollapsibleTrigger asChild>
                           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                             <CardTitle className="text-base flex items-center justify-between">
-                              Permission to Enter
+                              {t("ticketDetail.permissionToEnter")}
                               <ChevronDown className="h-4 w-4" />
                             </CardTitle>
                           </CardHeader>
@@ -393,7 +395,7 @@ export default function TicketDetailPage() {
                         <CollapsibleContent>
                           <CardContent>
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-foreground">The vendor does not have permission to enter.</span>
+                              <span className="text-sm text-foreground">{t("ticketDetail.vendorNoPermission")}</span>
                               <div className="w-10 h-6 bg-muted rounded-full flex items-center">
                                 <div className="w-4 h-4 bg-background rounded-full ml-1"></div>
                               </div>
@@ -409,7 +411,7 @@ export default function TicketDetailPage() {
                         <CollapsibleTrigger asChild>
                           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                             <CardTitle className="text-base flex items-center justify-between">
-                              Access Instructions
+                              {t("ticketDetail.accessInstructions")}
                               <ChevronDown className="h-4 w-4" />
                             </CardTitle>
                           </CardHeader>
@@ -417,7 +419,7 @@ export default function TicketDetailPage() {
                         <CollapsibleContent>
                           <CardContent>
                             <div className="text-sm text-muted-foreground">
-                              Add access instructions...
+                              {t("ticketDetail.addAccessInstructions")}
                             </div>
                           </CardContent>
                         </CollapsibleContent>

@@ -1,5 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 import { type Ticket } from "@/hooks/useTickets";
 import { DraggableTicketCard } from "./DraggableTicketCard";
 
@@ -25,6 +26,7 @@ export function KanbanColumn({
   const { isOver, setNodeRef } = useDroppable({
     id: id,
   });
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col min-w-[280px] max-w-[280px]">
@@ -38,7 +40,7 @@ export function KanbanColumn({
           {title}
         </h3>
         <p className="text-xs text-gray-500 mt-1">
-          {tickets.length} {tickets.length === 1 ? 'ticket' : 'tickets'}
+          {tickets.length} {tickets.length === 1 ? t("kanban.ticket") : t("kanban.tickets")}
         </p>
       </div>
 
@@ -54,7 +56,7 @@ export function KanbanColumn({
       >
         {tickets.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
-            No tickets in this status
+            {t("kanban.noTicketsInStatus")}
           </div>
         ) : (
           tickets.map((ticket) => (

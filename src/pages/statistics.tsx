@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CalendarDays, Clock, AlertTriangle, Euro, Wrench, CheckCircle, Users, Star } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, LineChart, Line, ResponsiveContainer } from "recharts";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Fake Data
 const kpiData = {
@@ -132,6 +133,7 @@ const tenantComplaints = [
 
 const StatisticsPage = () => {
   const [dateRange, setDateRange] = useState("30");
+  const { t } = useTranslation();
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -147,8 +149,8 @@ const StatisticsPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Property Maintenance Dashboard</h1>
-          <p className="text-muted-foreground">Real-time insights into property maintenance operations</p>
+          <h1 className="text-3xl font-bold text-foreground">{t("statistics.title")}</h1>
+          <p className="text-muted-foreground">{t("statistics.subtitle")}</p>
         </div>
         <div className="flex items-center gap-4">
           <Select value={dateRange} onValueChange={setDateRange}>
@@ -156,9 +158,9 @@ const StatisticsPage = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="custom">Custom range</SelectItem>
+              <SelectItem value="7">{t("statistics.last7Days")}</SelectItem>
+              <SelectItem value="30">{t("statistics.last30Days")}</SelectItem>
+              <SelectItem value="custom">{t("statistics.customRange")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -170,13 +172,13 @@ const StatisticsPage = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Wrench className="h-4 w-4" />
-              Open Work Orders
+              {t("statistics.openWorkOrders")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{kpiData.openWorkOrders.total}</div>
             <div className="flex gap-2 mt-2">
-              <Badge variant="destructive" className="text-xs">{kpiData.openWorkOrders.urgent} Urgent</Badge>
+              <Badge variant="destructive" className="text-xs">{kpiData.openWorkOrders.urgent} {t("statistics.urgent")}</Badge>
               <Badge variant="secondary" className="text-xs">{kpiData.openWorkOrders.high} High</Badge>
             </div>
           </CardContent>
@@ -186,12 +188,12 @@ const StatisticsPage = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              Avg Resolution Time
+              {t("statistics.avgResolutionTime")}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpiData.avgResolutionTime} days</div>
-            <p className="text-xs text-muted-foreground mt-1">↓ 0.3 from last month</p>
+            <div className="text-2xl font-bold">{kpiData.avgResolutionTime} {t("statistics.days")}</div>
+            <p className="text-xs text-muted-foreground mt-1">↓ 0.3 {t("statistics.fromLastMonth")}</p>
           </CardContent>
         </Card>
 
@@ -199,12 +201,12 @@ const StatisticsPage = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <AlertTriangle className="h-4 w-4" />
-              Tickets Overdue
+              {t("statistics.ticketsOverdue")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{kpiData.ticketsOverdue}</div>
-            <p className="text-xs text-muted-foreground mt-1">Needs attention</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("statistics.needsAttention")}</p>
           </CardContent>
         </Card>
 
@@ -212,12 +214,12 @@ const StatisticsPage = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Euro className="h-4 w-4" />
-              Monthly Spend
+              {t("statistics.monthlySpend")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">€{kpiData.monthlySpend.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">↑ 8% from last month</p>
+            <p className="text-xs text-muted-foreground mt-1">↑ 8% {t("statistics.fromLastMonth")}</p>
           </CardContent>
         </Card>
       </div>
@@ -227,8 +229,8 @@ const StatisticsPage = () => {
         {/* Bar Chart - Tickets by Category */}
         <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Tickets by Category</CardTitle>
-            <CardDescription>Current workload distribution</CardDescription>
+            <CardTitle>{t("statistics.ticketsByCategory")}</CardTitle>
+            <CardDescription>{t("statistics.currentWorkload")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -246,8 +248,8 @@ const StatisticsPage = () => {
         {/* Pie Chart - Tickets by Status */}
         <Card>
           <CardHeader>
-            <CardTitle>Tickets by Status</CardTitle>
-            <CardDescription>Current status breakdown</CardDescription>
+            <CardTitle>{t("statistics.ticketsByStatus")}</CardTitle>
+            <CardDescription>{t("statistics.statusBreakdown")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -273,8 +275,8 @@ const StatisticsPage = () => {
         {/* Line Chart - Trends */}
         <Card>
           <CardHeader>
-            <CardTitle>Open vs Closed Trends</CardTitle>
-            <CardDescription>Last 6 months performance</CardDescription>
+            <CardTitle>{t("statistics.openVsClosedTrends")}</CardTitle>
+            <CardDescription>{t("statistics.lastSixMonths")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -296,18 +298,18 @@ const StatisticsPage = () => {
         {/* Property Health Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Property Health Snapshot</CardTitle>
-            <CardDescription>Performance overview by property</CardDescription>
+            <CardTitle>{t("statistics.propertyHealthSnapshot")}</CardTitle>
+            <CardDescription>{t("statistics.performanceOverview")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Property</TableHead>
-                  <TableHead>Open</TableHead>
-                  <TableHead>Overdue</TableHead>
-                  <TableHead>Avg Resolution</TableHead>
-                  <TableHead>Monthly Spend</TableHead>
+                  <TableHead>{t("drawer.property")}</TableHead>
+                  <TableHead>{t("statistics.open")}</TableHead>
+                  <TableHead>{t("statistics.overdue")}</TableHead>
+                  <TableHead>{t("statistics.avgResolution")}</TableHead>
+                  <TableHead>{t("statistics.monthlySpend")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -327,7 +329,7 @@ const StatisticsPage = () => {
                         <Badge variant="outline" className="text-xs">0</Badge>
                       )}
                     </TableCell>
-                    <TableCell>{property.avgResolution} days</TableCell>
+                    <TableCell>{property.avgResolution} {t("statistics.days")}</TableCell>
                     <TableCell>€{property.monthlySpend.toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
@@ -339,8 +341,8 @@ const StatisticsPage = () => {
         {/* Vendor Performance */}
         <Card>
           <CardHeader>
-            <CardTitle>Vendor Performance</CardTitle>
-            <CardDescription>Top performing service providers</CardDescription>
+            <CardTitle>{t("statistics.vendorPerformance")}</CardTitle>
+            <CardDescription>{t("statistics.topPerforming")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {vendors.map((vendor, index) => (
@@ -349,8 +351,8 @@ const StatisticsPage = () => {
                   <div className="font-medium">{vendor.name}</div>
                   <div className="text-sm text-muted-foreground">{vendor.specialty}</div>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>Response: {vendor.avgResponseTime}</span>
-                    <span>Completed: {vendor.completedTickets}</span>
+                    <span>{t("statistics.response")}: {vendor.avgResponseTime}</span>
+                    <span>{t("statistics.completed")}: {vendor.completedTickets}</span>
                   </div>
                 </div>
                 <div className="text-right">
@@ -371,8 +373,8 @@ const StatisticsPage = () => {
         {/* Preventive Maintenance Calendar */}
         <Card>
           <CardHeader>
-            <CardTitle>Upcoming Maintenance</CardTitle>
-            <CardDescription>Scheduled preventive maintenance tasks</CardDescription>
+            <CardTitle>{t("statistics.upcomingMaintenance")}</CardTitle>
+            <CardDescription>{t("statistics.scheduledMaintenance")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {upcomingMaintenance.map((task, index) => (
@@ -393,20 +395,20 @@ const StatisticsPage = () => {
         {/* Tenant Impact */}
         <Card>
           <CardHeader>
-            <CardTitle>Tenant Impact</CardTitle>
-            <CardDescription>Common complaints and response metrics</CardDescription>
+            <CardTitle>{t("statistics.tenantImpact")}</CardTitle>
+            <CardDescription>{t("statistics.complaintsMetrics")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="p-3 border rounded-lg">
               <div className="flex items-center justify-between mb-3">
-                <span className="font-medium">Avg Response Time to Tenants</span>
+                <span className="font-medium">{t("statistics.avgResponseTime")}</span>
                 <span className="text-2xl font-bold text-primary">4h 12m</span>
               </div>
               <div className="text-sm text-muted-foreground">↓ 23 minutes from last month</div>
             </div>
             
             <div className="space-y-2">
-              <h4 className="font-medium">Top Complaints by Category</h4>
+              <h4 className="font-medium">{t("statistics.topComplaints")}</h4>
               {tenantComplaints.map((complaint) => (
                 <div key={complaint.category} className="flex items-center justify-between">
                   <span className="text-sm">{complaint.category}</span>
