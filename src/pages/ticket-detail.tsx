@@ -249,22 +249,22 @@ export default function TicketDetailPage() {
       </div>
 
       {/* Content with proper top margin */}
-      <div className="flex-1 mt-[280px] overflow-hidden">
-        <div className="h-full">
-          {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <TabsList className="w-fit ml-4 mt-4">
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="files">Files</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
-              <TabsTrigger value="invoice">Invoice</TabsTrigger>
-            </TabsList>
+      <div className="flex-1 mt-[280px]">
+        <ScrollArea className="h-[calc(100vh-280px)]">
+          <div className="h-full">
+            {/* Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+              <TabsList className="w-fit ml-4 mt-4">
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="files">Files</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                <TabsTrigger value="invoice">Invoice</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="details" className="flex-1 p-4 overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
-                {/* Left Panel - Ticket Details */}
-                <ScrollArea className="h-full">
-                  <div className="space-y-4 pr-4">
+              <TabsContent value="details" className="flex-1 p-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Left Panel - Ticket Details */}
+                  <div className="space-y-4">
                     {/* Description Section */}
                     <Card>
                       <Collapsible open={isDescriptionOpen} onOpenChange={setIsDescriptionOpen}>
@@ -398,11 +398,9 @@ export default function TicketDetailPage() {
                       </Collapsible>
                     </Card>
                   </div>
-                </ScrollArea>
 
-                {/* Right Panel - Notes & Tasks */}
-                <ScrollArea className="h-full">
-                  <div className="space-y-4 pr-4">
+                  {/* Right Panel - Notes & Tasks */}
+                  <div className="space-y-4">
                     <Card>
                       <CardHeader>
                         <CardTitle className="text-base">New Note</CardTitle>
@@ -435,55 +433,75 @@ export default function TicketDetailPage() {
                             <TabsTrigger value="emails">Emails</TabsTrigger>
                           </TabsList>
                           <TabsContent value="all-activity" className="mt-4">
-                            <ScrollArea className="h-[300px]">
-                              <div className="space-y-4 pr-4">
-                                <div className="flex items-start gap-3">
-                                  <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                  <div>
-                                    <div className="text-sm font-medium text-foreground">
-                                      State Changed To: Scheduling with Vendor
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                      Jul 27, 2018 11:19 AM | Created by Ethan L
-                                    </div>
+                            <div className="space-y-4">
+                              <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                                <div>
+                                  <div className="text-sm font-medium text-foreground">
+                                    State Changed To: Scheduling with Vendor
                                   </div>
-                                </div>
-                                {/* Add more activity items for demo */}
-                                <div className="flex items-start gap-3">
-                                  <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                  <div>
-                                    <div className="text-sm font-medium text-foreground">
-                                      Ticket Created
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                      Jul 27, 2018 11:00 AM | Created by System
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                  <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                  <div>
-                                    <div className="text-sm font-medium text-foreground">
-                                      Priority Set to High
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                      Jul 27, 2018 11:05 AM | Created by Admin
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                  <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                  <div>
-                                    <div className="text-sm font-medium text-foreground">
-                                      Note Added: Initial assessment needed
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                      Jul 27, 2018 11:10 AM | Created by Manager
-                                    </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Jul 27, 2018 11:19 AM | Created by Ethan L
                                   </div>
                                 </div>
                               </div>
-                            </ScrollArea>
+                              {/* Add more activity items for demo */}
+                              <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                                <div>
+                                  <div className="text-sm font-medium text-foreground">
+                                    Ticket Created
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Jul 27, 2018 11:00 AM | Created by System
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                                <div>
+                                  <div className="text-sm font-medium text-foreground">
+                                    Priority Set to High
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Jul 27, 2018 11:05 AM | Created by Admin
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                                <div>
+                                  <div className="text-sm font-medium text-foreground">
+                                    Note Added: Initial assessment needed
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Jul 27, 2018 11:10 AM | Created by Manager
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                                <div>
+                                  <div className="text-sm font-medium text-foreground">
+                                    Vendor Assignment Pending
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Jul 27, 2018 11:15 AM | Created by System
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                                <div>
+                                  <div className="text-sm font-medium text-foreground">
+                                    Budget Approval Requested
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    Jul 27, 2018 11:20 AM | Created by Finance
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </TabsContent>
                           <TabsContent value="tasks" className="mt-4">
                             <div className="text-sm text-muted-foreground">No tasks yet</div>
@@ -495,23 +513,23 @@ export default function TicketDetailPage() {
                       </CardContent>
                     </Card>
                   </div>
-                </ScrollArea>
-              </div>
-            </TabsContent>
+                </div>
+              </TabsContent>
 
-            <TabsContent value="files" className="flex-1 p-4">
-              <div className="text-muted-foreground">Files content coming soon</div>
-            </TabsContent>
+              <TabsContent value="files" className="flex-1 p-4">
+                <div className="text-muted-foreground">Files content coming soon</div>
+              </TabsContent>
 
-            <TabsContent value="reviews" className="flex-1 p-4">
-              <div className="text-muted-foreground">Reviews content coming soon</div>
-            </TabsContent>
+              <TabsContent value="reviews" className="flex-1 p-4">
+                <div className="text-muted-foreground">Reviews content coming soon</div>
+              </TabsContent>
 
-            <TabsContent value="invoice" className="flex-1 p-4">
-              <div className="text-muted-foreground">Invoice content coming soon</div>
-            </TabsContent>
-          </Tabs>
-        </div>
+              <TabsContent value="invoice" className="flex-1 p-4">
+                <div className="text-muted-foreground">Invoice content coming soon</div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </ScrollArea>
       </div>
 
       {/* Finding Vendor Modal */}
