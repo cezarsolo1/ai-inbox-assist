@@ -117,9 +117,6 @@ export default function TicketDetailPage() {
         setSelectedCompany("");
         setSelectedEmployee("");
         setSearchVendor("");
-        
-        // Navigate to vendor confirmation page
-        navigate(`/vendor/${id}`);
       } catch (error) {
         console.error("Failed to send WhatsApp message:", error);
         toast.error("Failed to send notification to vendor. Please try again.", { id: "vendor-notification" });
