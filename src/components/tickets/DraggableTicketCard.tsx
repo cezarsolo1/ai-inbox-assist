@@ -2,16 +2,18 @@ import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Calendar, MapPin, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, MapPin, Clock, Trash2 } from "lucide-react";
 import { type Ticket } from "@/hooks/useTickets";
 
 interface DraggableTicketCardProps {
   ticket: Ticket;
   onClick: (ticket: Ticket) => void;
+  onDelete: (ticketId: string) => void;
   isDragging: boolean;
 }
 
-export function DraggableTicketCard({ ticket, onClick, isDragging }: DraggableTicketCardProps) {
+export function DraggableTicketCard({ ticket, onClick, onDelete, isDragging }: DraggableTicketCardProps) {
   const { attributes, listeners, setNodeRef, transform, active } = useDraggable({
     id: ticket.id,
   });
@@ -50,9 +52,22 @@ export function DraggableTicketCard({ ticket, onClick, isDragging }: DraggableTi
           <h4 className="font-medium text-sm text-gray-900 line-clamp-2 flex-1">
             {ticket.title}
           </h4>
-          <Badge variant={getPriorityColor(ticket.priority)} className="text-xs shrink-0">
-            {ticket.priority}
-          </Badge>
+          <div className="flex items-center gap-1 shrink-0">
+            <Badge variant={getPriorityColor(ticket.priority)} className="text-xs">
+              {ticket.priority}
+            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(ticket.id);
+              }}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
 
         {/* Description */}

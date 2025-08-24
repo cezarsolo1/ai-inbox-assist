@@ -66,3 +66,12 @@ export async function updateTicketStatus(ticketId: string, status: string) {
 
   if (error) throw error;
 }
+
+export async function deleteTicket(ticketId: string) {
+  const { error } = await supabase
+    .from("tickets")
+    .delete()
+    .eq("id", ticketId);
+
+  if (error) throw error;
+}

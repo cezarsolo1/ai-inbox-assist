@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTickets, type Ticket } from "@/hooks/useTickets";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTickets, deleteTicket, type Ticket } from "@/hooks/useTickets";
 import { TicketKanbanBoard } from "@/components/tickets/TicketKanbanBoard";
 import { TicketInboxView } from "@/components/tickets/TicketInboxView";
 import { TicketDrawer } from "@/components/tickets/TicketDrawer";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter } from "lucide-react";
+import { toast } from "sonner";
 
 export default function TicketsPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"pending" | "orders">("pending");
@@ -21,6 +24,17 @@ export default function TicketsPage() {
 
   const handleTicketClick = (ticket: Ticket) => {
     navigate(`/tickets/${ticket.id}`);
+  };
+
+  const handleDelete = async (ticketId: string) => {
+    try {
+      await deleteTicket(ticketId);
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success("Ticket deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete ticket:", error);
+      toast.error("Failed to delete ticket");
+    }
   };
 
 
@@ -111,7 +125,8 @@ export default function TicketsPage() {
                 <div className="h-full overflow-y-auto p-4">
                   <TicketInboxView 
                     tickets={tickets} 
-                    onTicketClick={handleTicketClick} 
+                    onTicketClick={handleTicketClick}
+                    onDelete={handleDelete}
                   />
                 </div>
               )}

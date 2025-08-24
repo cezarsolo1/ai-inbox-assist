@@ -1,11 +1,14 @@
 import { format } from "date-fns";
 import { type Ticket } from "@/hooks/useTickets";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Trash2 } from "lucide-react";
 
 interface TicketInboxViewProps {
   tickets: Ticket[];
   onTicketClick: (ticket: Ticket) => void;
+  onDelete: (ticketId: string) => void;
 }
 
 function getStatusColor(status: string): "default" | "secondary" | "destructive" | "outline" {
@@ -29,7 +32,7 @@ function getStatusColor(status: string): "default" | "secondary" | "destructive"
   }
 }
 
-export function TicketInboxView({ tickets, onTicketClick }: TicketInboxViewProps) {
+export function TicketInboxView({ tickets, onTicketClick, onDelete }: TicketInboxViewProps) {
   return (
     <div className="bg-card rounded-lg border border-border">
       <Table>
@@ -40,6 +43,7 @@ export function TicketInboxView({ tickets, onTicketClick }: TicketInboxViewProps
             <TableHead className="text-muted-foreground font-medium">Address</TableHead>
             <TableHead className="text-muted-foreground font-medium">Status</TableHead>
             <TableHead className="text-muted-foreground font-medium">Date Created</TableHead>
+            <TableHead className="text-muted-foreground font-medium w-16">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -72,6 +76,19 @@ export function TicketInboxView({ tickets, onTicketClick }: TicketInboxViewProps
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {format(new Date(ticket.created_at), "MMM dd, yyyy")}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(ticket.id);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </TableCell>
             </TableRow>
           ))}

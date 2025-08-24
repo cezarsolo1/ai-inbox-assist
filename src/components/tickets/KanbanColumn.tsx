@@ -9,6 +9,7 @@ interface KanbanColumnProps {
   color: string;
   tickets: Ticket[];
   onTicketClick: (ticket: Ticket) => void;
+  onDelete: (ticketId: string) => void;
   isUpdating: boolean;
 }
 
@@ -18,6 +19,7 @@ export function KanbanColumn({
   color, 
   tickets, 
   onTicketClick,
+  onDelete,
   isUpdating 
 }: KanbanColumnProps) {
   const { isOver, setNodeRef } = useDroppable({
@@ -60,6 +62,7 @@ export function KanbanColumn({
               key={ticket.id}
               ticket={ticket}
               onClick={onTicketClick}
+              onDelete={onDelete}
               isDragging={false}
             />
           ))

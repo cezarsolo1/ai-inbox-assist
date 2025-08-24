@@ -10,7 +10,7 @@ import {
 } from "@dnd-kit/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { updateTicketStatus, type Ticket } from "@/hooks/useTickets";
+import { updateTicketStatus, deleteTicket, type Ticket } from "@/hooks/useTickets";
 import { KanbanColumn } from "./KanbanColumn";
 import { DraggableTicketCard } from "./DraggableTicketCard";
 
@@ -80,6 +80,17 @@ export function TicketKanbanBoard({ tickets, onTicketClick }: TicketKanbanBoardP
     return tickets.filter(ticket => ticket.status === status);
   };
 
+  const handleDelete = async (ticketId: string) => {
+    try {
+      await deleteTicket(ticketId);
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success("Ticket deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete ticket:", error);
+      toast.error("Failed to delete ticket");
+    }
+  };
+
   return (
     <div className="p-2">
       <DndContext
@@ -98,6 +109,7 @@ export function TicketKanbanBoard({ tickets, onTicketClick }: TicketKanbanBoardP
                 color={status.color}
                 tickets={columnTickets}
                 onTicketClick={onTicketClick}
+                onDelete={handleDelete}
                 isUpdating={isUpdating}
               />
             );
@@ -110,6 +122,7 @@ export function TicketKanbanBoard({ tickets, onTicketClick }: TicketKanbanBoardP
               <DraggableTicketCard
                 ticket={activeTicket}
                 onClick={() => {}}
+                onDelete={handleDelete}
                 isDragging={true}
               />
             </div>
