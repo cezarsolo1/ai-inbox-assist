@@ -139,9 +139,57 @@
     "ticketStatusUpdated": "Ticket status updated successfully",
     "failedToUpdate": "Failed to update ticket status"
   },
+  "tabs": {
+    "details": "Details",
+    "files": "Files",
+    "reviews": "Reviews", 
+    "invoice": "Invoice",
+    "filesComingSoon": "Files content coming soon",
+    "reviewsComingSoon": "Reviews content coming soon",
+    "invoiceComingSoon": "Invoice content coming soon"
+  },
+  "categories": {
+    "general": "General",
+    "plumbing": "Plumbing",
+    "electrical": "Electrical", 
+    "hvac": "HVAC"
+  },
   "kanban": {
     "ticket": "ticket",
     "tickets": "tickets",
-    "noTicketsInStatus": "No tickets in this status"
+    "noTicketsInStatus": "No tickets in this status",
+    "ticketMoved": "Ticket moved to",
+    "failedToUpdateStatus": "Failed to update ticket status",
+    "ticketDeletedSuccess": "Ticket deleted successfully",
+    "failedToDeleteTicket": "Failed to delete ticket"
+  },
+  "messageDetails": {
+    "title": "Message Details",
+    "contact": "Contact",
+    "name": "Name",
+    "from": "From", 
+    "to": "To",
+    "message": "Message",
+    "media": "Media",
+    "noTextContent": "(No text content)",
+    "rawWebhookData": "Raw Webhook Data"
+  },
+  "conversations": {
+    "backToInbox": "Back to Inbox",
+    "conversationNotFound": "Conversation not found",
+    "typeYourReply": "Type your reply...",
+    "typeWhatsAppMessage": "Type your WhatsApp message...",
+    "getReply": "Get Reply",
+    "generating": "Generating..."
+  },
+  "placeholders": {
+    "enterEmail": "Enter your email",
+    "enterPassword": "Enter your password", 
+    "createPassword": "Create a password",
+    "searchConversations": "Search conversations...",
+    "searchVendor": "Search for a vendor...",
+    "leaveNote": "Leave a note here...",
+    "budgetAmount": "200",
+    "hardLimit": "1000"
   }
 }

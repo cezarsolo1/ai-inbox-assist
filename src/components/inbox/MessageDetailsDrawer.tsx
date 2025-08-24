@@ -3,6 +3,7 @@ import { X, ChevronDown, ChevronUp, ExternalLink, Image, FileText } from "lucide
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { InboxMessage } from "@/hooks/useInboxMessages";
 
 interface MessageDetailsDrawerProps {
@@ -13,6 +14,7 @@ interface MessageDetailsDrawerProps {
 
 export function MessageDetailsDrawer({ message, isOpen, onClose }: MessageDetailsDrawerProps) {
   const [isRawExpanded, setIsRawExpanded] = useState(false);
+  const { t } = useTranslation();
 
   if (!isOpen || !message) {
     return null;
@@ -32,7 +34,7 @@ export function MessageDetailsDrawer({ message, isOpen, onClose }: MessageDetail
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <h2 className="text-lg font-semibold">Message Details</h2>
+          <h2 className="text-lg font-semibold">{t("messageDetails.title")}</h2>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>
@@ -42,18 +44,18 @@ export function MessageDetailsDrawer({ message, isOpen, onClose }: MessageDetail
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* Contact Info */}
           <Card className="p-4">
-            <h3 className="font-medium mb-2">Contact</h3>
+            <h3 className="font-medium mb-2">{t("messageDetails.contact")}</h3>
             <div className="space-y-1 text-sm">
               <div>
-                <span className="text-muted-foreground">Name: </span>
+                <span className="text-muted-foreground">{t("messageDetails.name")}: </span>
                 <span>{message.profile_name || "Unknown"}</span>
               </div>
               <div>
-                <span className="text-muted-foreground">From: </span>
+                <span className="text-muted-foreground">{t("messageDetails.from")}: </span>
                 <span>{message.from_msisdn}</span>
               </div>
               <div>
-                <span className="text-muted-foreground">To: </span>
+                <span className="text-muted-foreground">{t("messageDetails.to")}: </span>
                 <span>{message.to_msisdn}</span>
               </div>
               {message.twilio_sid && (
@@ -67,16 +69,16 @@ export function MessageDetailsDrawer({ message, isOpen, onClose }: MessageDetail
 
           {/* Message Content */}
           <Card className="p-4">
-            <h3 className="font-medium mb-2">Message</h3>
+            <h3 className="font-medium mb-2">{t("messageDetails.message")}</h3>
             <div className="text-sm whitespace-pre-wrap">
-              {message.body || <span className="text-muted-foreground italic">(No text content)</span>}
+              {message.body || <span className="text-muted-foreground italic">{t("messageDetails.noTextContent")}</span>}
             </div>
           </Card>
 
           {/* Media */}
           {hasMedia && (
             <Card className="p-4">
-              <h3 className="font-medium mb-2">Media ({validMedia.length})</h3>
+              <h3 className="font-medium mb-2">{t("messageDetails.media")} ({validMedia.length})</h3>
               <div className="space-y-2">
                 {validMedia.map((url, index) => (
                   <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded">
@@ -116,7 +118,7 @@ export function MessageDetailsDrawer({ message, isOpen, onClose }: MessageDetail
             <Card className="p-4">
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" className="w-full justify-between p-0 h-auto">
-                  <h3 className="font-medium">Raw Webhook Data</h3>
+                  <h3 className="font-medium">{t("messageDetails.rawWebhookData")}</h3>
                   {isRawExpanded ? (
                     <ChevronUp className="w-4 h-4" />
                   ) : (

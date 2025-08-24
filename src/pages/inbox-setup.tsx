@@ -2,10 +2,12 @@ import { Copy, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Link } from "react-router-dom";
 
 export default function InboxSetupPage() {
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const jsonPayload = `{
   "channel": "whatsapp",
@@ -33,7 +35,7 @@ export default function InboxSetupPage() {
         <Link to="/inbox">
           <Button variant="outline" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Inbox
+            {t("conversations.backToInbox")}
           </Button>
         </Link>
         <h1 className="text-2xl font-semibold">Inbox Setup - Make.com Integration</h1>

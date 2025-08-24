@@ -139,9 +139,57 @@
     "ticketStatusUpdated": "Ticket status succesvol bijgewerkt",
     "failedToUpdate": "Ticket status bijwerken mislukt"
   },
+  "tabs": {
+    "details": "Details",
+    "files": "Bestanden", 
+    "reviews": "Beoordelingen",
+    "invoice": "Factuur",
+    "filesComingSoon": "Bestanden functionaliteit komt binnenkort",
+    "reviewsComingSoon": "Beoordelingen functionaliteit komt binnenkort", 
+    "invoiceComingSoon": "Factuur functionaliteit komt binnenkort"
+  },
+  "categories": {
+    "general": "Algemeen",
+    "plumbing": "Loodgieterij",
+    "electrical": "Elektrisch",
+    "hvac": "Verwarming/Ventilatie"
+  },
   "kanban": {
     "ticket": "ticket",
     "tickets": "tickets",
-    "noTicketsInStatus": "Geen tickets in deze status"
+    "noTicketsInStatus": "Geen tickets in deze status",
+    "ticketMoved": "Ticket verplaatst naar",
+    "failedToUpdateStatus": "Ticket status bijwerken mislukt",
+    "ticketDeletedSuccess": "Ticket succesvol verwijderd", 
+    "failedToDeleteTicket": "Ticket verwijderen mislukt"
+  },
+  "messageDetails": {
+    "title": "Bericht Details",
+    "contact": "Contact",
+    "name": "Naam", 
+    "from": "Van",
+    "to": "Naar",
+    "message": "Bericht",
+    "media": "Media",
+    "noTextContent": "(Geen tekst inhoud)",
+    "rawWebhookData": "Ruwe Webhook Data"
+  },
+  "conversations": {
+    "backToInbox": "Terug naar Inbox",
+    "conversationNotFound": "Gesprek niet gevonden",
+    "typeYourReply": "Typ je antwoord...",
+    "typeWhatsAppMessage": "Typ je WhatsApp bericht...",
+    "getReply": "Krijg Antwoord",
+    "generating": "Genereren..."
+  },
+  "placeholders": {
+    "enterEmail": "Voer je e-mail in",
+    "enterPassword": "Voer je wachtwoord in",
+    "createPassword": "Maak een wachtwoord",
+    "searchConversations": "Zoek gesprekken...",
+    "searchVendor": "Zoek naar een leverancier...",
+    "leaveNote": "Laat hier een notitie achter...",
+    "budgetAmount": "200",
+    "hardLimit": "1000"
   }
 }

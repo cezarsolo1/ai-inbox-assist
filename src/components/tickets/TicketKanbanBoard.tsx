@@ -11,18 +11,9 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { updateTicketStatus, deleteTicket, type Ticket } from "@/hooks/useTickets";
+import { useTranslation } from "@/hooks/useTranslation";
 import { KanbanColumn } from "./KanbanColumn";
 import { DraggableTicketCard } from "./DraggableTicketCard";
-
-const TICKET_STATUSES = [
-  { id: "pending", label: "Pending", color: "bg-orange-100 border-orange-200" },
-  { id: "scheduling", label: "Scheduling", color: "bg-yellow-100 border-yellow-200" },
-  { id: "work_date_scheduled", label: "Work Date Scheduled", color: "bg-blue-100 border-blue-200" },
-  { id: "confirming_completion", label: "Confirming Completion", color: "bg-purple-100 border-purple-200" },
-  { id: "getting_invoice", label: "Getting Invoice", color: "bg-indigo-100 border-indigo-200" },
-  { id: "completed", label: "Completed", color: "bg-green-100 border-green-200" },
-  { id: "cancelled", label: "Cancelled", color: "bg-red-100 border-red-200" },
-];
 
 interface TicketKanbanBoardProps {
   tickets: Ticket[];
@@ -33,6 +24,17 @@ export function TicketKanbanBoard({ tickets, onTicketClick }: TicketKanbanBoardP
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  const TICKET_STATUSES = [
+    { id: "pending", label: t("ticketStatus.pending"), color: "bg-orange-100 border-orange-200" },
+    { id: "scheduling", label: t("ticketStatus.scheduling"), color: "bg-yellow-100 border-yellow-200" },
+    { id: "work_date_scheduled", label: t("ticketStatus.workDateScheduled"), color: "bg-blue-100 border-blue-200" },
+    { id: "confirming_completion", label: t("ticketStatus.confirmingCompletion"), color: "bg-purple-100 border-purple-200" },
+    { id: "getting_invoice", label: t("ticketStatus.gettingInvoice"), color: "bg-indigo-100 border-indigo-200" },
+    { id: "completed", label: t("ticketStatus.completed"), color: "bg-green-100 border-green-200" },
+    { id: "cancelled", label: t("ticketStatus.cancelled"), color: "bg-red-100 border-red-200" },
+  ];
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -67,9 +69,9 @@ export function TicketKanbanBoard({ tickets, onTicketClick }: TicketKanbanBoardP
       // Invalidate and refetch tickets query
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       
-      toast.success(`Ticket moved to ${TICKET_STATUSES.find(s => s.id === newStatus)?.label}`);
+      toast.success(`${t("kanban.ticketMoved")} ${TICKET_STATUSES.find(s => s.id === newStatus)?.label}`);
     } catch (error) {
-      toast.error("Failed to update ticket status");
+      toast.error(t("kanban.failedToUpdateStatus"));
       console.error("Error updating ticket status:", error);
     } finally {
       setIsUpdating(false);
@@ -84,10 +86,10 @@ export function TicketKanbanBoard({ tickets, onTicketClick }: TicketKanbanBoardP
     try {
       await deleteTicket(ticketId);
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
-      toast.success("Ticket deleted successfully");
+      toast.success(t("kanban.ticketDeletedSuccess"));
     } catch (error) {
       console.error("Failed to delete ticket:", error);
-      toast.error("Failed to delete ticket");
+      toast.error(t("kanban.failedToDeleteTicket"));
     }
   };
 

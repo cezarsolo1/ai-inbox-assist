@@ -9,6 +9,7 @@ import { mockConversations, mockTemplates, type Message } from "@/lib/mock-data"
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const getChannelIcon = (channel: string) => {
   const icons = {
@@ -45,6 +46,7 @@ export default function ConversationPage() {
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   const conversation = mockConversations.find(conv => conv.id === id);
   const [messages, setMessages] = useState<Message[]>(conversation?.messages || []);
@@ -53,9 +55,9 @@ export default function ConversationPage() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-medium mb-2">Conversation not found</h2>
+          <h2 className="text-xl font-medium mb-2">{t("conversations.conversationNotFound")}</h2>
           <Link to="/">
-            <Button>Back to Inbox</Button>
+            <Button>{t("conversations.backToInbox")}</Button>
           </Link>
         </div>
       </div>
@@ -200,7 +202,7 @@ export default function ConversationPage() {
             <Link to="/">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Inbox
+                {t("conversations.backToInbox")}
               </Button>
             </Link>
             <div className="flex items-center gap-3">
@@ -320,13 +322,13 @@ export default function ConversationPage() {
             className="flex items-center gap-2"
           >
             <User className="w-4 h-4" />
-            {isGeneratingReply ? "Generating..." : "Get Reply"}
+            {isGeneratingReply ? t("conversations.generating") : t("conversations.getReply")}
           </Button>
         </div>
         
         <div className="flex gap-2">
           <Textarea
-            placeholder="Type your reply..."
+            placeholder={t("conversations.typeYourReply")}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             className="min-h-[80px] resize-none"

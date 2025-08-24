@@ -252,10 +252,10 @@ export default function TicketDetailPage() {
                   <SelectValue placeholder={t("ticketDetail.searchJobCategory")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="general">General</SelectItem>
-                  <SelectItem value="plumbing">Plumbing</SelectItem>
-                  <SelectItem value="electrical">Electrical</SelectItem>
-                  <SelectItem value="hvac">HVAC</SelectItem>
+                  <SelectItem value="general">{t("categories.general")}</SelectItem>
+                  <SelectItem value="plumbing">{t("categories.plumbing")}</SelectItem>
+                  <SelectItem value="electrical">{t("categories.electrical")}</SelectItem>
+                  <SelectItem value="hvac">{t("categories.hvac")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -264,7 +264,7 @@ export default function TicketDetailPage() {
               <label className="text-xs text-muted-foreground">{t("ticketDetail.approvedBudget")}</label>
               <div className="flex items-center gap-1">
                 <span className="text-sm">$</span>
-                <Input placeholder="200" className="text-sm" />
+                <Input placeholder={t("placeholders.budgetAmount")} className="text-sm" />
               </div>
             </div>
 
@@ -272,7 +272,7 @@ export default function TicketDetailPage() {
               <label className="text-xs text-muted-foreground">{t("ticketDetail.hardBudgetLimit")}</label>
               <div className="flex items-center gap-1">
                 <span className="text-sm">$</span>
-                <Input placeholder="1000" className="text-sm" />
+                <Input placeholder={t("placeholders.hardLimit")} className="text-sm" />
               </div>
             </div>
 
@@ -313,10 +313,10 @@ export default function TicketDetailPage() {
 
           {/* Tab Navigation */}
           <TabsList className="w-fit">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="files">Files</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-            <TabsTrigger value="invoice">Invoice</TabsTrigger>
+            <TabsTrigger value="details">{t("tabs.details")}</TabsTrigger>
+            <TabsTrigger value="files">{t("tabs.files")}</TabsTrigger>
+            <TabsTrigger value="reviews">{t("tabs.reviews")}</TabsTrigger>
+            <TabsTrigger value="invoice">{t("tabs.invoice")}</TabsTrigger>
           </TabsList>
         </div>
       </div>
@@ -474,7 +474,7 @@ export default function TicketDetailPage() {
                           <Textarea
                             value={noteText}
                             onChange={(e) => setNoteText(e.target.value)}
-                            placeholder="Leave a note here..."
+                            placeholder={t("placeholders.leaveNote")}
                             className="min-h-[120px] resize-none"
                           />
                           <div className="text-xs text-muted-foreground">
@@ -581,15 +581,15 @@ export default function TicketDetailPage() {
               </TabsContent>
 
               <TabsContent value="files" className="flex-1 p-4">
-                <div className="text-muted-foreground">Files content coming soon</div>
+                <div className="text-muted-foreground">{t("tabs.filesComingSoon")}</div>
               </TabsContent>
 
               <TabsContent value="reviews" className="flex-1 p-4">
-                <div className="text-muted-foreground">Reviews content coming soon</div>
+                <div className="text-muted-foreground">{t("tabs.reviewsComingSoon")}</div>
               </TabsContent>
 
               <TabsContent value="invoice" className="flex-1 p-4">
-                <div className="text-muted-foreground">Invoice content coming soon</div>
+                <div className="text-muted-foreground">{t("tabs.invoiceComingSoon")}</div>
               </TabsContent>
           </div>
         </ScrollArea>
@@ -674,7 +674,7 @@ export default function TicketDetailPage() {
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search for a vendor..."
+                      placeholder={t("placeholders.searchVendor")}
                       value={searchVendor}
                       onChange={(e) => setSearchVendor(e.target.value)}
                       className="pl-9"
