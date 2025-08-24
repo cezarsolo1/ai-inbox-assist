@@ -1,4 +1,4 @@
-import { Inbox, MessageSquare, Building2, Users, LogOut, Ticket } from "lucide-react";
+import { Inbox, MessageSquare, Building2, Users, LogOut, Ticket, BarChart3 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 const navigation = [
   { name: "Inbox", href: "/", icon: Inbox },
   { name: "Tickets", href: "/tickets", icon: Ticket },
+  { name: "Statistics", href: "/statistics", icon: BarChart3 },
   { name: "Properties", href: "/properties", icon: Building2 },
   { name: "Tenants", href: "/tenants", icon: Users },
 ];

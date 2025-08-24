@@ -14,6 +14,7 @@ import TicketDetailPage from "./pages/ticket-detail";
 import VendorConfirmationPage from "./pages/vendor-confirmation";
 import PropertiesPage from "./pages/properties";
 import TenantsPage from "./pages/tenants";
+import StatisticsPage from "./pages/statistics";
 import AuthPage from "./pages/auth";
 import NotFound from "./pages/NotFound";
 
@@ -89,6 +90,13 @@ const App = () => (
               <ProtectedRoute>
                 <Layout>
                   <TenantsPage />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/statistics" element={
+              <ProtectedRoute>
+                <Layout>
+                  <StatisticsPage />
                 </Layout>
               </ProtectedRoute>
             } />
