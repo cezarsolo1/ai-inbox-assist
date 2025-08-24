@@ -1,0 +1,70 @@
+{
+  "navigation": {
+    "inbox": "Inbox",
+    "tickets": "Tickets",
+    "statistics": "Statistics",
+    "properties": "Properties",
+    "tenants": "Tenants",
+    "mainNavigation": "Main Navigation"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "search": "Search",
+    "filter": "Filter",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "signOut": "Sign Out",
+    "signedInAs": "Signed in as",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "tickets": {
+    "title": "Work Orders",
+    "subtitle": "Manage property maintenance tickets",
+    "searchPlaceholder": "Search tickets...",
+    "dashboard": "Dashboard",
+    "pendingTickets": "Pending Tickets",
+    "allStatus": "All Status",
+    "loadingTickets": "Loading tickets...",
+    "errorLoading": "Error loading tickets",
+    "deleteSuccess": "Ticket deleted successfully",
+    "deleteError": "Failed to delete ticket",
+    "noTicketsFound": "No tickets found"
+  },
+  "ticketStatus": {
+    "pending": "Pending",
+    "scheduling": "Scheduling", 
+    "workDateScheduled": "Work Date Scheduled",
+    "confirmingCompletion": "Confirming Completion",
+    "gettingInvoice": "Getting Invoice",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "priority": {
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "app": {
+    "title": "Smart Inbox",
+    "subtitle": "Property Management",
+    "version": "Version 1.0.0 MVP"
+  },
+  "footer": {
+    "pages": "Pages"
+  }
+}

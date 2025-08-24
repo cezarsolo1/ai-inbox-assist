@@ -1,0 +1,70 @@
+{
+  "navigation": {
+    "inbox": "Inbox",
+    "tickets": "Tickets",
+    "statistics": "Statistieken",
+    "properties": "Panden",
+    "tenants": "Huurders",
+    "mainNavigation": "Hoofdnavigatie"
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fout",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "search": "Zoeken",
+    "filter": "Filteren",
+    "edit": "Bewerken",
+    "view": "Bekijken",
+    "close": "Sluiten",
+    "back": "Terug",
+    "next": "Volgende",
+    "previous": "Vorige",
+    "submit": "Verzenden",
+    "confirm": "Bevestigen",
+    "yes": "Ja",
+    "no": "Nee"
+  },
+  "auth": {
+    "signOut": "Uitloggen",
+    "signedInAs": "Ingelogd als",
+    "login": "Inloggen",
+    "logout": "Uitloggen"
+  },
+  "tickets": {
+    "title": "Werkorders",
+    "subtitle": "Beheer onderhoudstickets voor panden",
+    "searchPlaceholder": "Zoek tickets...",
+    "dashboard": "Dashboard",
+    "pendingTickets": "Openstaande Tickets",
+    "allStatus": "Alle Statussen",
+    "loadingTickets": "Tickets laden...",
+    "errorLoading": "Fout bij laden tickets",
+    "deleteSuccess": "Ticket succesvol verwijderd",
+    "deleteError": "Ticket verwijderen mislukt",
+    "noTicketsFound": "Geen tickets gevonden"
+  },
+  "ticketStatus": {
+    "pending": "In behandeling",
+    "scheduling": "Inplannen",
+    "workDateScheduled": "Werkdatum Ingepland",
+    "confirmingCompletion": "Voltooiing Bevestigen",
+    "gettingInvoice": "Factuur Ophalen",
+    "completed": "Voltooid",
+    "cancelled": "Geannuleerd"
+  },
+  "priority": {
+    "high": "Hoog",
+    "medium": "Gemiddeld", 
+    "low": "Laag"
+  },
+  "app": {
+    "title": "Smart Inbox",
+    "subtitle": "Vastgoedbeheer",
+    "version": "Versie 1.0.0 MVP"
+  },
+  "footer": {
+    "pages": "Pagina's"
+  }
+}

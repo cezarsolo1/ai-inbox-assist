@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, MapPin, AlertCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { Ticket } from "@/hooks/useTickets";
 
 interface TicketRowProps {
@@ -44,6 +45,30 @@ const getStatusColor = (status: string) => {
 };
 
 export function TicketRow({ ticket, onClick }: TicketRowProps) {
+  const { t } = useTranslation();
+  
+  const translatePriority = (priority: string) => {
+    switch (priority.toLowerCase()) {
+      case "high": return t("priority.high");
+      case "medium": return t("priority.medium");
+      case "low": return t("priority.low");
+      default: return priority;
+    }
+  };
+
+  const translateStatus = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "pending": return t("ticketStatus.pending");
+      case "scheduling": return t("ticketStatus.scheduling");
+      case "work_date_scheduled": return t("ticketStatus.workDateScheduled");
+      case "confirming_completion": return t("ticketStatus.confirmingCompletion");
+      case "getting_invoice": return t("ticketStatus.gettingInvoice");
+      case "completed": return t("ticketStatus.completed");
+      case "cancelled": return t("ticketStatus.cancelled");
+      default: return status;
+    }
+  };
+  
   return (
     <Card 
       className="cursor-pointer hover:bg-accent/50 transition-colors"
@@ -55,10 +80,10 @@ export function TicketRow({ ticket, onClick }: TicketRowProps) {
             <div className="flex items-center gap-2 mb-2">
               <Badge variant={getPriorityColor(ticket.priority)}>
                 <AlertCircle className="w-3 h-3 mr-1" />
-                {ticket.priority}
+                {translatePriority(ticket.priority)}
               </Badge>
               <Badge variant={getStatusColor(ticket.status)}>
-                {ticket.status}
+                {translateStatus(ticket.status)}
               </Badge>
             </div>
             
