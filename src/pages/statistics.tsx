@@ -143,7 +143,7 @@ const StatisticsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6 space-y-6">
+    <div className="bg-background p-6 space-y-6 overflow-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
