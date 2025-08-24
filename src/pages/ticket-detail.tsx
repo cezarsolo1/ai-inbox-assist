@@ -49,7 +49,7 @@ export default function TicketDetailPage() {
       id: "ghengis-plumbing",
       name: "Ghengis Plumbing",
       employees: [
-        { id: "ghengis-khan", name: "Ghengis Khan", phone: "(510) 557-4475", email: "ethan+khan@latchel.com" },
+        { id: "ghengis-khan", name: "Ghengis Khan", phone: "(510) 557-4475", email: "ethan+khan@blocklane.com" },
         { id: "john-doe", name: "John Doe", phone: "(510) 555-0123", email: "john.doe@ghengisplumbing.com" }
       ]
     },
@@ -413,7 +413,7 @@ export default function TicketDetailPage() {
                             className="min-h-[120px] resize-none"
                           />
                           <div className="text-xs text-muted-foreground">
-                            (Creating a note does not notify Latchel)
+                            (Creating a note does not notify Blocklane)
                           </div>
                           <div className="flex justify-end">
                             <Button size="sm">Save Note</Button>
