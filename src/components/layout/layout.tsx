@@ -3,6 +3,7 @@ import { AppSidebar } from "./AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import AppFooter from "@/components/AppFooter";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -63,8 +64,11 @@ export function Layout({ children }: LayoutProps) {
           </div>
           
           {/* Page Content */}
-          <div className="min-h-svh overflow-auto">
-            {children}
+          <div className="min-h-svh overflow-auto flex flex-col">
+            <div className="flex-1">
+              {children}
+            </div>
+            <AppFooter />
           </div>
         </main>
       </div>
