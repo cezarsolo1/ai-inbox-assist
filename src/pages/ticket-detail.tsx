@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, ChevronDown, X, Search, Phone, Mail } from "lucide-react";
 import { sendWhatsAppReply } from "@/lib/sendOutbound";
@@ -44,36 +44,48 @@ export default function TicketDetailPage() {
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
   const [searchVendor, setSearchVendor] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<string>("");
-  const [selectedEmployee, setSelectedEmployee] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
+  const [useRecommendedVendor, setUseRecommendedVendor] = useState(true);
 
-  // Enhanced vendor data with employees
+  // Vendor data with descriptions
   const vendorData = {
+    "altijd-omhoog": {
+      id: "altijd-omhoog",
+      name: "Altijd Omhoog B.V.",
+      description: "Professional maintenance and repair services with 15+ years of experience. Specialized in residential and commercial property maintenance, plumbing, electrical work, and general repairs. Known for reliable service and competitive pricing.",
+      phone: "+31 6 12345678",
+      email: "info@altijdomhoog.nl"
+    },
     "ghengis-plumbing": {
       id: "ghengis-plumbing",
       name: "Ghengis Plumbing",
-      employees: [
-        { id: "ghengis-khan", name: "Ghengis Khan", phone: "(510) 557-4475", email: "ethan+khan@blocklane.com" },
-        { id: "john-doe", name: "John Doe", phone: "(510) 555-0123", email: "john.doe@ghengisplumbing.com" }
-      ]
+      description: "Expert plumbing services for residential and commercial properties. Licensed professionals with 24/7 emergency service availability.",
+      phone: "(510) 557-4475",
+      email: "contact@ghengisplumbing.com"
     },
     "quickfix-services": {
       id: "quickfix-services", 
       name: "QuickFix Services",
-      employees: [
-        { id: "maria-smith", name: "Maria Smith", phone: "(415) 555-0199", email: "maria@quickfix.com" },
-        { id: "carlos-rodriguez", name: "Carlos Rodriguez", phone: "(415) 555-0187", email: "carlos@quickfix.com" }
-      ]
+      description: "Fast and reliable repair services covering electrical, plumbing, HVAC, and general maintenance. Same-day service available for urgent repairs.",
+      phone: "(415) 555-0199",
+      email: "info@quickfix.com"
     },
     "abc-maintenance": {
       id: "abc-maintenance",
-      name: "ABC Maintenance", 
-      employees: [
-        { id: "sarah-johnson", name: "Sarah Johnson", phone: "(650) 555-0156", email: "sarah@abcmaintenance.com" },
-        { id: "mike-wilson", name: "Mike Wilson", phone: "(650) 555-0134", email: "mike@abcmaintenance.com" }
-      ]
+      name: "ABC Maintenance",
+      description: "Comprehensive property maintenance solutions including preventive maintenance, emergency repairs, and facility management services.",
+      phone: "(650) 555-0156",
+      email: "service@abcmaintenance.com"
     }
   };
+
+  // Set recommended vendor on mount
+  useEffect(() => {
+    if (useRecommendedVendor) {
+      setSelectedCompany("altijd-omhoog");
+      setSearchVendor("Altijd Omhoog B.V.");
+    }
+  }, [useRecommendedVendor]);
 
   const companies = Object.values(vendorData);
   const filteredCompanies = companies.filter(company =>
@@ -81,16 +93,13 @@ export default function TicketDetailPage() {
   );
 
   const selectedCompanyData = selectedCompany ? vendorData[selectedCompany as keyof typeof vendorData] : null;
-  const selectedEmployeeData = selectedCompanyData && selectedEmployee 
-    ? selectedCompanyData.employees.find(emp => emp.id === selectedEmployee) 
-    : null;
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   const handleVendorSubmit = async () => {
-    if (selectedCompany && selectedEmployee && selectedEmployeeData && !isSending) {
+    if (selectedCompany && selectedCompanyData && !isSending) {
       setIsSending(true);
       
       try {
@@ -98,7 +107,7 @@ export default function TicketDetailPage() {
         toast.loading("Sending notification to vendor...", { id: "vendor-notification" });
         
         // Send WhatsApp message to Friso
-        const message = "You have 1 job that need to be scheduled. We've already collected the tenant's schedule. Please go to this link to schedule yours: https://preview--blocklane-contractor.lovable.app/plan . The code is 39303.";
+        const message = `You have 1 job that needs to be scheduled. Company: ${selectedCompanyData.name}. Please go to this link to schedule: https://preview--blocklane-contractor.lovable.app/plan. The code is 39303.`;
         
         // Send the WhatsApp message
         const messageId = await sendWhatsAppReply({
@@ -115,8 +124,8 @@ export default function TicketDetailPage() {
         // Reset modal state
         setIsVendorModalOpen(false);
         setSelectedCompany("");
-        setSelectedEmployee("");
         setSearchVendor("");
+        setUseRecommendedVendor(true);
       } catch (error) {
         console.error("Failed to send WhatsApp message:", error);
         toast.error("Failed to send notification to vendor. Please try again.", { id: "vendor-notification" });
@@ -124,6 +133,12 @@ export default function TicketDetailPage() {
         setIsSending(false);
       }
     }
+  };
+
+  const handleSearchForDifferentVendor = () => {
+    setUseRecommendedVendor(false);
+    setSelectedCompany("");
+    setSearchVendor("");
   };
 
   const { data: ticket, isLoading } = useQuery({
@@ -559,125 +574,173 @@ export default function TicketDetailPage() {
         </ScrollArea>
       </div>
 
-      {/* Finding Vendor Modal */}
+      {/* Vendor Assignment Modal */}
       <Dialog open={isVendorModalOpen} onOpenChange={setIsVendorModalOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">Finding Vendor</DialogTitle>
+            <DialogTitle>Assign Vendor</DialogTitle>
           </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Select a vendor to assign this work order to:
-              </label>
-              
-              {/* Company Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search by Company Name"
-                  value={searchVendor}
-                  onChange={(e) => setSearchVendor(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-
-              {/* Company Dropdown */}
-              {searchVendor && (
-                <div className="space-y-1 max-h-[120px] overflow-y-auto border rounded-lg">
-                  {filteredCompanies.map((company) => (
-                    <div
-                      key={company.id}
-                      className={`p-2 cursor-pointer hover:bg-muted/50 ${
-                        selectedCompany === company.id ? 'bg-primary/10' : ''
-                      }`}
-                      onClick={() => {
-                        setSelectedCompany(company.id);
-                        setSearchVendor(company.name);
-                        setSelectedEmployee("");
-                      }}
-                    >
-                      {company.name}
-                    </div>
-                  ))}
+          <div className="space-y-4 py-4">
+            {useRecommendedVendor ? (
+              /* Recommended Vendor Display */
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="text-sm font-medium text-foreground mb-2">Recommended Vendor</div>
+                  <div className="text-lg font-bold text-primary">Altijd Omhoog B.V.</div>
                 </div>
-              )}
-            </div>
 
-            {/* Employee Dropdown */}
-            {selectedCompanyData && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Select Employee:
-                </label>
-                <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an employee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {selectedCompanyData.employees.map((employee) => (
-                      <SelectItem key={employee.id} value={employee.id}>
-                        {employee.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* Vendor Details Card */}
-            {selectedEmployeeData && (
-              <div className="p-4 border rounded-lg bg-card">
-                <div className="flex items-start gap-3">
-                  {/* Avatar Circle */}
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
-                    {getInitials(selectedEmployeeData.name)}
-                  </div>
-                  
-                  {/* Details */}
-                  <div className="flex-1 space-y-2">
-                    <div>
-                      <div className="font-medium text-sm">{selectedCompanyData.name}</div>
-                      <div className="text-sm text-muted-foreground">{selectedEmployeeData.name}</div>
+                {/* Company Details Card */}
+                <div className="p-4 border rounded-lg bg-card">
+                  <div className="flex items-start gap-3">
+                    {/* Avatar Circle */}
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                      {getInitials("Altijd Omhoog B.V.")}
                     </div>
                     
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Phone className="h-3 w-3" />
-                        {selectedEmployeeData.phone}
+                    {/* Details */}
+                    <div className="flex-1 space-y-2">
+                      <div>
+                        <div className="font-medium text-sm">Altijd Omhoog B.V.</div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Mail className="h-3 w-3" />
-                        {selectedEmployeeData.email}
+                      
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Phone className="h-3 w-3" />
+                          +31 6 12345678
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Mail className="h-3 w-3" />
+                          info@altijdomhoog.nl
+                        </div>
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Company Description */}
+                  <div className="mt-3 pt-3 border-t">
+                    <div className="text-sm text-muted-foreground">
+                      Professional maintenance and repair services with 15+ years of experience. Specialized in residential and commercial property maintenance, plumbing, electrical work, and general repairs. Known for reliable service and competitive pricing.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    onClick={handleVendorSubmit}
+                    disabled={isSending}
+                    className="bg-primary text-primary-foreground w-full"
+                  >
+                    {isSending ? "Sending..." : "Assign Altijd Omhoog B.V."}
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={handleSearchForDifferentVendor}
+                    className="w-full"
+                  >
+                    Search for Different Vendor
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              /* Company Search Mode */
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Search for Vendor:
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search for a vendor..."
+                      value={searchVendor}
+                      onChange={(e) => setSearchVendor(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+
+                  {/* Company Dropdown */}
+                  {searchVendor && (
+                    <div className="space-y-1 max-h-[120px] overflow-y-auto border rounded-lg">
+                      {filteredCompanies.map((company) => (
+                        <div
+                          key={company.id}
+                          className={`p-2 cursor-pointer hover:bg-muted/50 ${
+                            selectedCompany === company.id ? 'bg-primary/10' : ''
+                          }`}
+                          onClick={() => {
+                            setSelectedCompany(company.id);
+                            setSearchVendor(company.name);
+                          }}
+                        >
+                          {company.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Selected Company Details */}
+                {selectedCompanyData && (
+                  <div className="p-4 border rounded-lg bg-card">
+                    <div className="flex items-start gap-3">
+                      {/* Avatar Circle */}
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                        {getInitials(selectedCompanyData.name)}
+                      </div>
+                      
+                      {/* Details */}
+                      <div className="flex-1 space-y-2">
+                        <div>
+                          <div className="font-medium text-sm">{selectedCompanyData.name}</div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Phone className="h-3 w-3" />
+                            {selectedCompanyData.phone}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Mail className="h-3 w-3" />
+                            {selectedCompanyData.email}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Company Description */}
+                    <div className="mt-3 pt-3 border-t">
+                      <div className="text-sm text-muted-foreground">
+                        {selectedCompanyData.description}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Confirmation Text */}
+                {selectedCompanyData && (
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <div className="text-sm font-medium mb-2">By submitting this action:</div>
+                    <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                      <li>This job will be assigned to {selectedCompanyData.name}.</li>
+                      <li>We will send a message to the vendor asking them to schedule this job.</li>
+                    </ul>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <div className="flex justify-end pt-4">
+                  <Button 
+                    onClick={handleVendorSubmit}
+                    disabled={!selectedCompany || isSending}
+                    className="bg-primary text-primary-foreground"
+                  >
+                    {isSending ? "Sending..." : "Submit"}
+                  </Button>
                 </div>
               </div>
             )}
-
-            {/* Confirmation Text */}
-            {selectedEmployeeData && (
-              <div className="p-4 bg-muted/30 rounded-lg">
-                <div className="text-sm font-medium mb-2">By submitting this action:</div>
-                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>This job will be assigned to {selectedEmployeeData.name}.</li>
-                  <li>We will send a message to the vendor asking them to schedule this job.</li>
-                </ul>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <div className="flex justify-end pt-4">
-              <Button 
-                onClick={handleVendorSubmit}
-                disabled={!selectedCompany || !selectedEmployee || isSending}
-                className="bg-primary text-primary-foreground"
-              >
-                {isSending ? "Sending..." : "Submit"}
-              </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
