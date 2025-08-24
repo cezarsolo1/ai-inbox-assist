@@ -259,7 +259,7 @@ export default function TicketDetailPage() {
       {/* Content with proper top margin */}
       <div className="flex-1 mt-[320px]">
         <ScrollArea className="h-[calc(100vh-320px)]">
-          <div className="h-full">
+          <div className="h-full pt-6">
               <TabsContent value="details" className="flex-1 p-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Left Panel - Ticket Details */}
