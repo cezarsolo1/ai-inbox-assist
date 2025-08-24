@@ -63,7 +63,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
           
           {/* Page Content */}
-          <div className="h-screen overflow-hidden">
+          <div className="min-h-svh overflow-auto">
             {children}
           </div>
         </main>
