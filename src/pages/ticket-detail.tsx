@@ -250,286 +250,285 @@ export default function TicketDetailPage() {
 
       {/* Content with proper top margin */}
       <div className="flex-1 mt-[280px]">
-        <ScrollArea className="h-[calc(100vh-280px)]">
-          <div className="h-full">
-            {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <TabsList className="w-fit ml-4 mt-4">
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="files">Files</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                <TabsTrigger value="invoice">Invoice</TabsTrigger>
-              </TabsList>
+        {/* Tabs - Fixed position below header */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <TabsList className="w-fit ml-4 mt-4 mb-4">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="files">Files</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <TabsTrigger value="invoice">Invoice</TabsTrigger>
+          </TabsList>
 
-              <TabsContent value="details" className="flex-1 p-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Left Panel - Ticket Details */}
-                  <div className="space-y-4">
-                    {/* Description Section */}
-                    <Card>
-                      <Collapsible open={isDescriptionOpen} onOpenChange={setIsDescriptionOpen}>
-                        <CollapsibleTrigger asChild>
-                          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                            <CardTitle className="text-base flex items-center justify-between">
-                              Description
-                              <ChevronDown className={`h-4 w-4 transition-transform ${isDescriptionOpen ? 'rotate-180' : ''}`} />
-                            </CardTitle>
-                          </CardHeader>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <CardContent>
-                            <div className="text-sm text-foreground mb-4">
-                              {ticket.description || "needs to be replaced"}
+          {/* Scrollable Content */}
+          <ScrollArea className="flex-1">
+            <TabsContent value="details" className="p-4 mt-0">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Panel - Ticket Details */}
+                <div className="space-y-4">
+                  {/* Description Section */}
+                  <Card>
+                    <Collapsible open={isDescriptionOpen} onOpenChange={setIsDescriptionOpen}>
+                      <CollapsibleTrigger asChild>
+                        <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                          <CardTitle className="text-base flex items-center justify-between">
+                            Description
+                            <ChevronDown className={`h-4 w-4 transition-transform ${isDescriptionOpen ? 'rotate-180' : ''}`} />
+                          </CardTitle>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent>
+                          <div className="text-sm text-foreground mb-4">
+                            {ticket.description || "needs to be replaced"}
+                          </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </Card>
+
+                  {/* Property Section */}
+                  <Card>
+                    <Collapsible defaultOpen>
+                      <CollapsibleTrigger asChild>
+                        <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                          <CardTitle className="text-base flex items-center justify-between">
+                            Property
+                            <ChevronDown className="h-4 w-4" />
+                          </CardTitle>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                              <div className="w-2 h-2 bg-destructive rounded-full"></div>
                             </div>
-                          </CardContent>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    </Card>
+                            <div>
+                              <div className="font-medium text-foreground">
+                                {ticket.property_address || "999 Nine St. 9"}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                Northridge, CA 91326
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </Card>
 
-                    {/* Property Section */}
-                    <Card>
-                      <Collapsible defaultOpen>
-                        <CollapsibleTrigger asChild>
-                          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                            <CardTitle className="text-base flex items-center justify-between">
-                              Property
-                              <ChevronDown className="h-4 w-4" />
-                            </CardTitle>
-                          </CardHeader>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <CardContent>
+                  {/* Permission to Enter Section */}
+                  <Card>
+                    <Collapsible defaultOpen>
+                      <CollapsibleTrigger asChild>
+                        <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                          <CardTitle className="text-base flex items-center justify-between">
+                            Permission to Enter
+                            <ChevronDown className="h-4 w-4" />
+                          </CardTitle>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-foreground">The vendor does not have permission to enter.</span>
+                            <div className="w-10 h-6 bg-muted rounded-full flex items-center">
+                              <div className="w-4 h-4 bg-background rounded-full ml-1"></div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </Card>
+
+                  {/* Access Instructions Section */}
+                  <Card>
+                    <Collapsible defaultOpen>
+                      <CollapsibleTrigger asChild>
+                        <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                          <CardTitle className="text-base flex items-center justify-between">
+                            Access Instructions
+                            <ChevronDown className="h-4 w-4" />
+                          </CardTitle>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent>
+                          <div className="text-sm text-muted-foreground">
+                            Add access instructions...
+                          </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </Card>
+
+                  {/* Tenant Section */}
+                  <Card>
+                    <Collapsible defaultOpen>
+                      <CollapsibleTrigger asChild>
+                        <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                          <CardTitle className="text-base flex items-center justify-between">
+                            Tenant
+                            <ChevronDown className="h-4 w-4" />
+                          </CardTitle>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent>
+                          <div className="space-y-3">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                                <div className="w-2 h-2 bg-destructive rounded-full"></div>
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                <span className="text-sm font-medium text-primary">JD</span>
                               </div>
                               <div>
-                                <div className="font-medium text-foreground">
-                                  {ticket.property_address || "999 Nine St. 9"}
+                                <div className="font-medium text-foreground">John Doe</div>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Phone className="h-3 w-3" />
+                                  (555) 123-4567
                                 </div>
-                                <div className="text-sm text-muted-foreground">
-                                  Northridge, CA 91326
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    </Card>
-
-                    {/* Permission to Enter Section */}
-                    <Card>
-                      <Collapsible defaultOpen>
-                        <CollapsibleTrigger asChild>
-                          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                            <CardTitle className="text-base flex items-center justify-between">
-                              Permission to Enter
-                              <ChevronDown className="h-4 w-4" />
-                            </CardTitle>
-                          </CardHeader>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <CardContent>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-foreground">The vendor does not have permission to enter.</span>
-                              <div className="w-10 h-6 bg-muted rounded-full flex items-center">
-                                <div className="w-4 h-4 bg-background rounded-full ml-1"></div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    </Card>
-
-                    {/* Access Instructions Section */}
-                    <Card>
-                      <Collapsible defaultOpen>
-                        <CollapsibleTrigger asChild>
-                          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                            <CardTitle className="text-base flex items-center justify-between">
-                              Access Instructions
-                              <ChevronDown className="h-4 w-4" />
-                            </CardTitle>
-                          </CardHeader>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <CardContent>
-                            <div className="text-sm text-muted-foreground">
-                              Add access instructions...
-                            </div>
-                          </CardContent>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    </Card>
-
-                    {/* Tenant Section */}
-                    <Card>
-                      <Collapsible defaultOpen>
-                        <CollapsibleTrigger asChild>
-                          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                            <CardTitle className="text-base flex items-center justify-between">
-                              Tenant
-                              <ChevronDown className="h-4 w-4" />
-                            </CardTitle>
-                          </CardHeader>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <CardContent>
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                  <span className="text-sm font-medium text-primary">JD</span>
-                                </div>
-                                <div>
-                                  <div className="font-medium text-foreground">John Doe</div>
-                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <Phone className="h-3 w-3" />
-                                    (555) 123-4567
-                                  </div>
-                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <Mail className="h-3 w-3" />
-                                    john.doe@email.com
-                                  </div>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Mail className="h-3 w-3" />
+                                  john.doe@email.com
                                 </div>
                               </div>
                             </div>
-                          </CardContent>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    </Card>
-                  </div>
-
-                  {/* Right Panel - Notes & Tasks */}
-                  <div className="space-y-4">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base">New Note</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          <Textarea
-                            value={noteText}
-                            onChange={(e) => setNoteText(e.target.value)}
-                            placeholder="Leave a note here..."
-                            className="min-h-[120px] resize-none"
-                          />
-                          <div className="text-xs text-muted-foreground">
-                            (Creating a note does not notify Latchel)
                           </div>
-                          <div className="flex justify-end">
-                            <Button size="sm">Save Note</Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Activity Feed */}
-                    <Card>
-                      <CardContent className="pt-6">
-                        <Tabs defaultValue="all-activity" className="w-full">
-                          <TabsList className="grid w-full grid-cols-3">
-                            <TabsTrigger value="all-activity">All Activity</TabsTrigger>
-                            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                            <TabsTrigger value="emails">Emails</TabsTrigger>
-                          </TabsList>
-                          <TabsContent value="all-activity" className="mt-4">
-                            <div className="space-y-4">
-                              <div className="flex items-start gap-3">
-                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                <div>
-                                  <div className="text-sm font-medium text-foreground">
-                                    State Changed To: Scheduling with Vendor
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    Jul 27, 2018 11:19 AM | Created by Ethan L
-                                  </div>
-                                </div>
-                              </div>
-                              {/* Add more activity items for demo */}
-                              <div className="flex items-start gap-3">
-                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                <div>
-                                  <div className="text-sm font-medium text-foreground">
-                                    Ticket Created
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    Jul 27, 2018 11:00 AM | Created by System
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex items-start gap-3">
-                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                <div>
-                                  <div className="text-sm font-medium text-foreground">
-                                    Priority Set to High
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    Jul 27, 2018 11:05 AM | Created by Admin
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex items-start gap-3">
-                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                <div>
-                                  <div className="text-sm font-medium text-foreground">
-                                    Note Added: Initial assessment needed
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    Jul 27, 2018 11:10 AM | Created by Manager
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex items-start gap-3">
-                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                <div>
-                                  <div className="text-sm font-medium text-foreground">
-                                    Vendor Assignment Pending
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    Jul 27, 2018 11:15 AM | Created by System
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex items-start gap-3">
-                                <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
-                                <div>
-                                  <div className="text-sm font-medium text-foreground">
-                                    Budget Approval Requested
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">
-                                    Jul 27, 2018 11:20 AM | Created by Finance
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </TabsContent>
-                          <TabsContent value="tasks" className="mt-4">
-                            <div className="text-sm text-muted-foreground">No tasks yet</div>
-                          </TabsContent>
-                          <TabsContent value="emails" className="mt-4">
-                            <div className="text-sm text-muted-foreground">No emails yet</div>
-                          </TabsContent>
-                        </Tabs>
-                      </CardContent>
-                    </Card>
-                  </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </Card>
                 </div>
-              </TabsContent>
 
-              <TabsContent value="files" className="flex-1 p-4">
-                <div className="text-muted-foreground">Files content coming soon</div>
-              </TabsContent>
+                {/* Right Panel - Notes & Tasks */}
+                <div className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">New Note</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <Textarea
+                          value={noteText}
+                          onChange={(e) => setNoteText(e.target.value)}
+                          placeholder="Leave a note here..."
+                          className="min-h-[120px] resize-none"
+                        />
+                        <div className="text-xs text-muted-foreground">
+                          (Creating a note does not notify Latchel)
+                        </div>
+                        <div className="flex justify-end">
+                          <Button size="sm">Save Note</Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-              <TabsContent value="reviews" className="flex-1 p-4">
-                <div className="text-muted-foreground">Reviews content coming soon</div>
-              </TabsContent>
+                  {/* Activity Feed */}
+                  <Card>
+                    <CardContent className="pt-6">
+                      <Tabs defaultValue="all-activity" className="w-full">
+                        <TabsList className="grid w-full grid-cols-3">
+                          <TabsTrigger value="all-activity">All Activity</TabsTrigger>
+                          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                          <TabsTrigger value="emails">Emails</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="all-activity" className="mt-4">
+                          <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                              <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                              <div>
+                                <div className="text-sm font-medium text-foreground">
+                                  State Changed To: Scheduling with Vendor
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Jul 27, 2018 11:19 AM | Created by Ethan L
+                                </div>
+                              </div>
+                            </div>
+                            {/* Add more activity items for demo */}
+                            <div className="flex items-start gap-3">
+                              <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                              <div>
+                                <div className="text-sm font-medium text-foreground">
+                                  Ticket Created
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Jul 27, 2018 11:00 AM | Created by System
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                              <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                              <div>
+                                <div className="text-sm font-medium text-foreground">
+                                  Priority Set to High
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Jul 27, 2018 11:05 AM | Created by Admin
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                              <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                              <div>
+                                <div className="text-sm font-medium text-foreground">
+                                  Note Added: Initial assessment needed
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Jul 27, 2018 11:10 AM | Created by Manager
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                              <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                              <div>
+                                <div className="text-sm font-medium text-foreground">
+                                  Vendor Assignment Pending
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Jul 27, 2018 11:15 AM | Created by System
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                              <div className="w-2 h-2 bg-muted-foreground rounded-full mt-2"></div>
+                              <div>
+                                <div className="text-sm font-medium text-foreground">
+                                  Budget Approval Requested
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Jul 27, 2018 11:20 AM | Created by Finance
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </TabsContent>
+                        <TabsContent value="tasks" className="mt-4">
+                          <div className="text-sm text-muted-foreground">No tasks yet</div>
+                        </TabsContent>
+                        <TabsContent value="emails" className="mt-4">
+                          <div className="text-sm text-muted-foreground">No emails yet</div>
+                        </TabsContent>
+                      </Tabs>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
 
-              <TabsContent value="invoice" className="flex-1 p-4">
-                <div className="text-muted-foreground">Invoice content coming soon</div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </ScrollArea>
+            <TabsContent value="files" className="p-4 mt-0">
+              <div className="text-muted-foreground">Files content coming soon</div>
+            </TabsContent>
+
+            <TabsContent value="reviews" className="p-4 mt-0">
+              <div className="text-muted-foreground">Reviews content coming soon</div>
+            </TabsContent>
+
+            <TabsContent value="invoice" className="p-4 mt-0">
+              <div className="text-muted-foreground">Invoice content coming soon</div>
+            </TabsContent>
+          </ScrollArea>
+        </Tabs>
       </div>
 
       {/* Finding Vendor Modal */}
