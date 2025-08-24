@@ -143,7 +143,7 @@ export default function TicketDetailPage() {
   const currentStepIndex = progressSteps.indexOf(ticket.status.replace('_', ' '));
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full bg-background">
       {/* Fixed Header */}
       <div className="fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-b border-border">
         <div className="p-4">
@@ -245,22 +245,21 @@ export default function TicketDetailPage() {
               ))}
             </div>
           </div>
+
+          {/* Tab Navigation */}
+          <TabsList className="w-fit">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="files">Files</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <TabsTrigger value="invoice">Invoice</TabsTrigger>
+          </TabsList>
         </div>
       </div>
 
       {/* Content with proper top margin */}
-      <div className="flex-1 mt-[280px]">
-        <ScrollArea className="h-[calc(100vh-280px)]">
+      <div className="flex-1 mt-[320px]">
+        <ScrollArea className="h-[calc(100vh-320px)]">
           <div className="h-full">
-            {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <TabsList className="w-fit ml-4 mt-4">
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="files">Files</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-                <TabsTrigger value="invoice">Invoice</TabsTrigger>
-              </TabsList>
-
               <TabsContent value="details" className="flex-1 p-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Left Panel - Ticket Details */}
@@ -527,7 +526,6 @@ export default function TicketDetailPage() {
               <TabsContent value="invoice" className="flex-1 p-4">
                 <div className="text-muted-foreground">Invoice content coming soon</div>
               </TabsContent>
-            </Tabs>
           </div>
         </ScrollArea>
       </div>
@@ -654,6 +652,6 @@ export default function TicketDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </Tabs>
   );
 }
