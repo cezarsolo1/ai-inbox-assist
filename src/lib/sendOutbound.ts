@@ -14,25 +14,8 @@ export async function sendWhatsAppReply({
   threadId?: string;
   tenantId?: string;
 }) {
-  // 1) insert locally so bubble shows immediately
-  const { data, error } = await supabase
-    .from("outbound_messages")
-    .insert([{
-      channel: "whatsapp",
-      to_msisdn: to.replace(/^whatsapp:/, "").replace(/^\+?/, "+"),
-      from_msisdn: TWILIO_WA_NUMBER.replace(/^whatsapp:/, "").replace(/^\+?/, "+"),
-      body: text,
-      media,
-      status: "queued"
-    }])
-    .select("id")
-    .single();
-  if (error) throw error;
-  const id = data.id;
-
-  // 2) post to Make (the same 'text' string)
+  // 2) post to Make first - don't save to database until confirmed sent
   const payload = {
-    id,
     channel: "whatsapp",
     to,
     from: TWILIO_WA_NUMBER,
@@ -44,6 +27,8 @@ export async function sendWhatsAppReply({
   };
 
   console.log("OUTBOUND → Make", { url: MAKE_OUTBOUND_WEBHOOK_URL, payload });
+
+  let messageId: string;
 
   try {
     const res = await fetch(MAKE_OUTBOUND_WEBHOOK_URL, {
@@ -57,20 +42,34 @@ export async function sendWhatsAppReply({
 
     const txt = await res.text();
     console.log("Make response", res.status, txt);
+    
     if (!res.ok) {
-      console.warn(`Make webhook failed (${res.status}): ${txt}. Message still saved locally.`);
-      await supabase.from("outbound_messages").update({ status: "failed", error: txt }).eq("id", id);
-      // Don't throw error - message was saved successfully to local database
-    } else {
-      await supabase.from("outbound_messages").update({ status: "sent" }).eq("id", id);
+      throw new Error(`Make webhook failed (${res.status}): ${txt}`);
     }
+
+    // 1) Only insert to database AFTER successful send to Make
+    const { data, error } = await supabase
+      .from("outbound_messages")
+      .insert([{
+        channel: "whatsapp",
+        to_msisdn: to.replace(/^whatsapp:/, "").replace(/^\+?/, "+"),
+        from_msisdn: TWILIO_WA_NUMBER.replace(/^whatsapp:/, "").replace(/^\+?/, "+"),
+        body: text,
+        media,
+        status: "sent" // Mark as sent immediately since Make call succeeded
+      }])
+      .select("id")
+      .single();
+    
+    if (error) throw error;
+    messageId = data.id;
+
   } catch (fetchError) {
-    console.warn("Make webhook request failed:", fetchError, ". Message still saved locally.");
-    await supabase.from("outbound_messages").update({ status: "failed", error: String(fetchError) }).eq("id", id);
-    // Don't throw error - message was saved successfully to local database
+    console.error("Failed to send WhatsApp message:", fetchError);
+    throw fetchError; // Re-throw to allow caller to handle the error
   }
 
-  return id;
+  return messageId;
 }
 
 export async function markOutboundSent(id: string, sid: string) {
