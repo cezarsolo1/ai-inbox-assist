@@ -121,6 +121,25 @@ export default function TicketDetailPage() {
         toast.success("Notification sent to vendor successfully!", { id: "vendor-notification" });
         console.log("Vendor assigned and notified for job:", id, "Message ID:", messageId);
         
+        // Update ticket status to scheduling after successful vendor notification
+        if (ticket?.id) {
+          try {
+            const { error: updateError } = await supabase
+              .from("tickets")
+              .update({ status: "scheduling" })
+              .eq("id", ticket.id);
+            
+            if (updateError) {
+              console.error("Failed to update ticket status:", updateError);
+              toast.error("Vendor notified but failed to update ticket status");
+            } else {
+              toast.success("Ticket moved to scheduling status");
+            }
+          } catch (statusError) {
+            console.error("Error updating ticket status:", statusError);
+          }
+        }
+        
         // Reset modal state
         setIsVendorModalOpen(false);
         setSelectedCompany("");

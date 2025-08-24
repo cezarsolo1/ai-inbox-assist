@@ -74,9 +74,27 @@ export default function VendorConfirmationPage() {
 
   
 
-  const handleScheduleSelect = () => {
-    // Just navigate to scheduling page - no WhatsApp functionality
-    console.log("Navigating to schedule selection for job:", jobId);
+  const handleScheduleSelect = async () => {
+    console.log("Vendor confirming schedule selection for job:", jobId);
+    
+    // Update ticket status to scheduling
+    if (jobId) {
+      try {
+        const { error: updateError } = await supabase
+          .from("tickets")
+          .update({ status: "scheduling" })
+          .eq("id", jobId);
+        
+        if (updateError) {
+          console.error("Failed to update ticket status:", updateError);
+        } else {
+          console.log("Ticket moved to scheduling status");
+        }
+      } catch (statusError) {
+        console.error("Error updating ticket status:", statusError);
+      }
+    }
+    
     navigate("/");
   };
 
