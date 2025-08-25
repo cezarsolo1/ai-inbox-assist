@@ -263,7 +263,7 @@ export default function TicketDetailPage() {
             <div>
               <label className="text-xs text-muted-foreground">{t("ticketDetail.approvedBudget")}</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm">$</span>
+                <span className="text-sm">€</span>
                 <Input placeholder={t("placeholders.budgetAmount")} className="text-sm" />
               </div>
             </div>
@@ -271,7 +271,7 @@ export default function TicketDetailPage() {
             <div>
               <label className="text-xs text-muted-foreground">{t("ticketDetail.hardBudgetLimit")}</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm">$</span>
+                <span className="text-sm">€</span>
                 <Input placeholder={t("placeholders.hardLimit")} className="text-sm" />
               </div>
             </div>
