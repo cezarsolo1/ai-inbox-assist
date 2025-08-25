@@ -343,7 +343,7 @@ export default function TicketDetailPage() {
                         <CollapsibleContent>
                           <CardContent>
                             <div className="text-sm text-foreground mb-4">
-                              {ticket.description || "needs to be replaced"}
+                              {ticket.description || "Lift stuk"}
                             </div>
                           </CardContent>
                         </CollapsibleContent>
