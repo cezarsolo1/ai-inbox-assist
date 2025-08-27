@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, ChevronDown, X, Search, Phone, Mail } from "lucide-react";
 import { sendWhatsAppReply } from "@/lib/sendOutbound";
 import { FRISO_PHONE_NUMBER } from "@/lib/config";
+import { CEZAR_PHONE_NUMBER } from "@/lib/config";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -111,7 +112,7 @@ export default function TicketDetailPage() {
         
         // Send the WhatsApp message
         const messageId = await sendWhatsAppReply({
-          to: FRISO_PHONE_NUMBER,
+          to: CEZAR_PHONE_NUMBER,
           text: message,
           threadId: id,
           tenantId: ticket?.tenant_id || undefined
