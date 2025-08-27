@@ -6,7 +6,6 @@ import { FRISO_PHONE_NUMBER } from "@/lib/config";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useTranslation } from "@/hooks/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -37,7 +36,6 @@ function getPriorityColor(priority: string): "default" | "secondary" | "destruct
 export default function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("details");
   const [noteTab, setNoteTab] = useState("new-note");
@@ -106,7 +104,7 @@ export default function TicketDetailPage() {
       
       try {
         // Show sending state in UI
-        toast.loading(t("ticketDetail.sendingNotification"), { id: "vendor-notification" });
+        toast.loading("Sending notification to vendor...", { id: "vendor-notification" });
         
         // Send WhatsApp message to Friso
         const message = `You have 1 job that needs to be scheduled. Company: ${selectedCompanyData.name}. Please go to this link to schedule: https://monteur.blocklane.nl/plan. The code is 39303.`;
@@ -120,7 +118,7 @@ export default function TicketDetailPage() {
         });
 
         // Success - message has been sent AND saved to conversation
-        toast.success(t("ticketDetail.notificationSent"), { id: "vendor-notification" });
+        toast.success("Notification sent to vendor successfully!", { id: "vendor-notification" });
         console.log("Vendor assigned and notified for job:", id, "Message ID:", messageId);
         
         // Update ticket status to scheduling after successful vendor notification
@@ -135,7 +133,7 @@ export default function TicketDetailPage() {
               console.error("Failed to update ticket status:", updateError);
               toast.error("Vendor notified but failed to update ticket status");
             } else {
-              toast.success(t("ticketDetail.ticketMovedToScheduling"));
+              toast.success("Ticket moved to scheduling status");
             }
           } catch (statusError) {
             console.error("Error updating ticket status:", statusError);
@@ -149,7 +147,7 @@ export default function TicketDetailPage() {
         setUseRecommendedVendor(true);
       } catch (error) {
         console.error("Failed to send WhatsApp message:", error);
-        toast.error(t("ticketDetail.failedToSend"), { id: "vendor-notification" });
+        toast.error("Failed to send notification to vendor. Please try again.", { id: "vendor-notification" });
       } finally {
         setIsSending(false);
       }
@@ -182,7 +180,7 @@ export default function TicketDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-muted-foreground">{t("ticketDetail.loadingTicket")}</div>
+        <div className="text-muted-foreground">Loading ticket...</div>
       </div>
     );
   }
@@ -190,7 +188,7 @@ export default function TicketDetailPage() {
   if (!ticket) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-destructive">{t("ticketDetail.ticketNotFound")}</div>
+        <div className="text-destructive">Ticket not found</div>
       </div>
     );
   }
@@ -223,7 +221,7 @@ export default function TicketDetailPage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <div className="text-sm text-muted-foreground">{t("ticketDetail.workOrder")}</div>
+              <div className="text-sm text-muted-foreground">Work Order</div>
               <h1 className="text-xl font-semibold text-foreground">
                 {ticket.id.slice(0, 8)}
               </h1>
@@ -235,7 +233,7 @@ export default function TicketDetailPage() {
             <h2 className="text-lg font-bold text-foreground mb-2">{ticket.title}</h2>
             <div className="flex items-center gap-4">
               <div>
-                <div className="text-xs text-muted-foreground">{t("ticketDetail.priority")}</div>
+                <div className="text-xs text-muted-foreground">Priority</div>
                 <Badge variant={getPriorityColor(ticket.priority)} className="capitalize">
                   {ticket.priority}
                 </Badge>
@@ -246,39 +244,39 @@ export default function TicketDetailPage() {
           {/* Form Fields Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div>
-              <label className="text-xs text-muted-foreground">{t("ticketDetail.category")}</label>
+              <label className="text-xs text-muted-foreground">Category</label>
               <Select value={ticket.category}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("ticketDetail.searchJobCategory")} />
+                  <SelectValue placeholder="Search for a job trade category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="general">{t("categories.general")}</SelectItem>
-                  <SelectItem value="plumbing">{t("categories.plumbing")}</SelectItem>
-                  <SelectItem value="electrical">{t("categories.electrical")}</SelectItem>
-                  <SelectItem value="hvac">{t("categories.hvac")}</SelectItem>
+                  <SelectItem value="general">General</SelectItem>
+                  <SelectItem value="plumbing">Plumbing</SelectItem>
+                  <SelectItem value="electrical">Electrical</SelectItem>
+                  <SelectItem value="hvac">HVAC</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div>
-              <label className="text-xs text-muted-foreground">{t("ticketDetail.approvedBudget")}</label>
+              <label className="text-xs text-muted-foreground">Approved Budget</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm">€</span>
-                <Input placeholder={t("placeholders.budgetAmount")} className="text-sm" />
+                <span className="text-sm">$</span>
+                <Input placeholder="200" className="text-sm" />
               </div>
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">{t("ticketDetail.hardBudgetLimit")}</label>
+              <label className="text-xs text-muted-foreground">Hard Budget Limit</label>
               <div className="flex items-center gap-1">
-                <span className="text-sm">€</span>
-                <Input placeholder={t("placeholders.hardLimit")} className="text-sm" />
+                <span className="text-sm">$</span>
+                <Input placeholder="1000" className="text-sm" />
               </div>
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">{t("ticketDetail.scheduledWorkDate")}</label>
-              <Input placeholder={t("ticketDetail.notScheduledYet")} className="text-sm" />
+              <label className="text-xs text-muted-foreground">Scheduled Work Date</label>
+              <Input placeholder="Not scheduled yet" className="text-sm" />
             </div>
           </div>
 
@@ -288,7 +286,7 @@ export default function TicketDetailPage() {
               className="bg-primary text-primary-foreground"
               onClick={() => setIsVendorModalOpen(true)}
             >
-              {t("ticketDetail.takeAction")}
+              Take Action
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
 
@@ -313,10 +311,10 @@ export default function TicketDetailPage() {
 
           {/* Tab Navigation */}
           <TabsList className="w-fit">
-            <TabsTrigger value="details">{t("tabs.details")}</TabsTrigger>
-            <TabsTrigger value="files">{t("tabs.files")}</TabsTrigger>
-            <TabsTrigger value="reviews">{t("tabs.reviews")}</TabsTrigger>
-            <TabsTrigger value="invoice">{t("tabs.invoice")}</TabsTrigger>
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="files">Files</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <TabsTrigger value="invoice">Invoice</TabsTrigger>
           </TabsList>
         </div>
       </div>
@@ -335,7 +333,7 @@ export default function TicketDetailPage() {
                         <CollapsibleTrigger asChild>
                           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                             <CardTitle className="text-base flex items-center justify-between">
-                              {t("ticketDetail.description")}
+                              Description
                               <ChevronDown className={`h-4 w-4 transition-transform ${isDescriptionOpen ? 'rotate-180' : ''}`} />
                             </CardTitle>
                           </CardHeader>
@@ -343,7 +341,7 @@ export default function TicketDetailPage() {
                         <CollapsibleContent>
                           <CardContent>
                             <div className="text-sm text-foreground mb-4">
-                              {ticket.description || "Lift stuk"}
+                              {ticket.description || "needs to be replaced"}
                             </div>
                           </CardContent>
                         </CollapsibleContent>
@@ -356,7 +354,7 @@ export default function TicketDetailPage() {
                         <CollapsibleTrigger asChild>
                           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                             <CardTitle className="text-base flex items-center justify-between">
-                              {t("ticketDetail.property")}
+                              Property
                               <ChevronDown className="h-4 w-4" />
                             </CardTitle>
                           </CardHeader>
@@ -387,7 +385,7 @@ export default function TicketDetailPage() {
                         <CollapsibleTrigger asChild>
                           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                             <CardTitle className="text-base flex items-center justify-between">
-                              {t("ticketDetail.permissionToEnter")}
+                              Permission to Enter
                               <ChevronDown className="h-4 w-4" />
                             </CardTitle>
                           </CardHeader>
@@ -395,7 +393,7 @@ export default function TicketDetailPage() {
                         <CollapsibleContent>
                           <CardContent>
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-foreground">{t("ticketDetail.vendorNoPermission")}</span>
+                              <span className="text-sm text-foreground">The vendor does not have permission to enter.</span>
                               <div className="w-10 h-6 bg-muted rounded-full flex items-center">
                                 <div className="w-4 h-4 bg-background rounded-full ml-1"></div>
                               </div>
@@ -411,7 +409,7 @@ export default function TicketDetailPage() {
                         <CollapsibleTrigger asChild>
                           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
                             <CardTitle className="text-base flex items-center justify-between">
-                              {t("ticketDetail.accessInstructions")}
+                              Access Instructions
                               <ChevronDown className="h-4 w-4" />
                             </CardTitle>
                           </CardHeader>
@@ -419,7 +417,7 @@ export default function TicketDetailPage() {
                         <CollapsibleContent>
                           <CardContent>
                             <div className="text-sm text-muted-foreground">
-                              {t("ticketDetail.addAccessInstructions")}
+                              Add access instructions...
                             </div>
                           </CardContent>
                         </CollapsibleContent>
@@ -474,7 +472,7 @@ export default function TicketDetailPage() {
                           <Textarea
                             value={noteText}
                             onChange={(e) => setNoteText(e.target.value)}
-                            placeholder={t("placeholders.leaveNote")}
+                            placeholder="Leave a note here..."
                             className="min-h-[120px] resize-none"
                           />
                           <div className="text-xs text-muted-foreground">
@@ -581,15 +579,15 @@ export default function TicketDetailPage() {
               </TabsContent>
 
               <TabsContent value="files" className="flex-1 p-4">
-                <div className="text-muted-foreground">{t("tabs.filesComingSoon")}</div>
+                <div className="text-muted-foreground">Files content coming soon</div>
               </TabsContent>
 
               <TabsContent value="reviews" className="flex-1 p-4">
-                <div className="text-muted-foreground">{t("tabs.reviewsComingSoon")}</div>
+                <div className="text-muted-foreground">Reviews content coming soon</div>
               </TabsContent>
 
               <TabsContent value="invoice" className="flex-1 p-4">
-                <div className="text-muted-foreground">{t("tabs.invoiceComingSoon")}</div>
+                <div className="text-muted-foreground">Invoice content coming soon</div>
               </TabsContent>
           </div>
         </ScrollArea>
@@ -674,7 +672,7 @@ export default function TicketDetailPage() {
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder={t("placeholders.searchVendor")}
+                      placeholder="Search for a vendor..."
                       value={searchVendor}
                       onChange={(e) => setSearchVendor(e.target.value)}
                       className="pl-9"

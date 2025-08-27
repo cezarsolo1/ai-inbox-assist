@@ -1,16 +1,14 @@
 import { Link } from "react-router-dom";
 import { getConcreteRoutes } from "@/routes/listPublicRoutes";
-import { useTranslation } from "@/hooks/useTranslation";
 
 export default function AppFooter() {
   const links = getConcreteRoutes();
-  const { t } = useTranslation();
 
   return (
     <footer className="w-full border-t mt-8">
       <div className="mx-auto max-w-7xl px-4 py-3 text-xs text-muted-foreground">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="whitespace-nowrap">{t("footer.pages")}:</span>
+          <span className="whitespace-nowrap">Pages:</span>
           {links.map((to, i) => (
             <span key={to} className="flex items-center">
               <Link

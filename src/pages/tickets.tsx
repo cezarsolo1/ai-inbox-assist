@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "@/hooks/useTranslation";
 import { useTickets, deleteTicket, type Ticket } from "@/hooks/useTickets";
 import { TicketKanbanBoard } from "@/components/tickets/TicketKanbanBoard";
 import { TicketInboxView } from "@/components/tickets/TicketInboxView";
@@ -14,7 +13,6 @@ import { toast } from "sonner";
 export default function TicketsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"pending" | "orders">("pending");
@@ -32,10 +30,10 @@ export default function TicketsPage() {
     try {
       await deleteTicket(ticketId);
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
-      toast.success(t("tickets.deleteSuccess"));
+      toast.success("Ticket deleted successfully");
     } catch (error) {
       console.error("Failed to delete ticket:", error);
-      toast.error(t("tickets.deleteError"));
+      toast.error("Failed to delete ticket");
     }
   };
 
@@ -43,7 +41,7 @@ export default function TicketsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-muted-foreground">{t("tickets.loadingTickets")}</div>
+        <div className="text-muted-foreground">Loading tickets...</div>
       </div>
     );
   }
@@ -51,7 +49,7 @@ export default function TicketsPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-destructive">{t("tickets.errorLoading")}: {error.message}</div>
+        <div className="text-destructive">Error loading tickets: {error.message}</div>
       </div>
     );
   }
@@ -63,9 +61,9 @@ export default function TicketsPage() {
         <div className="flex items-center justify-between gap-4 p-4 pl-6">
           {/* Left side - Title */}
           <div className="min-w-0 flex-shrink-0">
-            <h1 className="text-xl font-semibold text-foreground">{t("tickets.title")}</h1>
+            <h1 className="text-xl font-semibold text-foreground">Work Orders</h1>
             <p className="text-xs text-muted-foreground">
-              {t("tickets.subtitle")}
+              Manage property maintenance tickets
             </p>
           </div>
 
@@ -74,7 +72,7 @@ export default function TicketsPage() {
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder={t("tickets.searchPlaceholder")}
+                placeholder="Search tickets..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
@@ -83,28 +81,28 @@ export default function TicketsPage() {
             
             <Select value={viewMode} onValueChange={(value: "pending" | "orders") => setViewMode(value)}>
               <SelectTrigger className="w-36">
-                <SelectValue placeholder={t("common.view")} />
+                <SelectValue placeholder="View" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pending">{t("tickets.dashboard")}</SelectItem>
-                <SelectItem value="orders">{t("tickets.pendingTickets")}</SelectItem>
+                <SelectItem value="pending">Dashboard</SelectItem>
+                <SelectItem value="orders">Pending Tickets</SelectItem>
               </SelectContent>
             </Select>
             
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-32">
                 <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder={t("tickets.allStatus")} />
+                <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("tickets.allStatus")}</SelectItem>
-                <SelectItem value="pending">{t("ticketStatus.pending")}</SelectItem>
-                <SelectItem value="scheduling">{t("ticketStatus.scheduling")}</SelectItem>
-                <SelectItem value="work_date_scheduled">{t("ticketStatus.workDateScheduled")}</SelectItem>
-                <SelectItem value="confirming_completion">{t("ticketStatus.confirmingCompletion")}</SelectItem>
-                <SelectItem value="getting_invoice">{t("ticketStatus.gettingInvoice")}</SelectItem>
-                <SelectItem value="completed">{t("ticketStatus.completed")}</SelectItem>
-                <SelectItem value="cancelled">{t("ticketStatus.cancelled")}</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="scheduling">Scheduling</SelectItem>
+                <SelectItem value="work_date_scheduled">Work Date Scheduled</SelectItem>
+                <SelectItem value="confirming_completion">Confirming Completion</SelectItem>
+                <SelectItem value="getting_invoice">Getting Invoice</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>

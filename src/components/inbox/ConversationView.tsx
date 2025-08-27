@@ -4,7 +4,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Trash2, Loader2, Bot, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/useTranslation";
 import { ConversationMessage, useConversationMessages } from "@/hooks/useConversationMessages";
 import { sendWhatsAppReply } from "@/lib/sendOutbound";
 import {
@@ -144,7 +143,6 @@ export default function ConversationView({
   const [isSending, setIsSending] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const { toast } = useToast();
-  const { t } = useTranslation();
   
   // Use the new unified conversation messages hook
   const { data: messages = [], refetch, isLoading } = useConversationMessages({
@@ -288,7 +286,7 @@ export default function ConversationView({
           <Textarea
             value={replyText || ""}
             onChange={(e) => setReplyText(e.target.value || "")}
-            placeholder={t("conversations.typeWhatsAppMessage")}
+            placeholder="Type your WhatsApp message..."
             className="flex-1 min-h-[60px] resize-none"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
