@@ -5,8 +5,9 @@ import { sendWhatsAppReply } from "@/lib/sendOutbound";
 import { FRISO_PHONE_NUMBER } from "@/lib/config";
 import { CEZAR_PHONE_NUMBER } from "@/lib/config";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { updateTicketStatus } from "@/hooks/useTickets";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,7 @@ function getPriorityColor(priority: string): "default" | "secondary" | "destruct
 export default function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("details");
   const [noteTab, setNoteTab] = useState("new-note");
@@ -100,7 +102,7 @@ export default function TicketDetailPage() {
   };
 
   const handleVendorSubmit = async () => {
-    if (selectedCompany && selectedCompanyData && !isSending) {
+    if (selectedCompany && selectedCompanyData && !isSending && ticket?.id) {
       setIsSending(true);
       
       try {
@@ -114,41 +116,33 @@ export default function TicketDetailPage() {
         const messageId = await sendWhatsAppReply({
           to: CEZAR_PHONE_NUMBER,
           text: message,
-          threadId: id,
-          tenantId: ticket?.tenant_id || undefined
+          threadId: id || ticket.id,
+          tenantId: ticket.tenant_id || undefined
         });
 
-        // Success - message has been sent AND saved to conversation
-        toast.success("Notification sent to vendor successfully!", { id: "vendor-notification" });
         console.log("Vendor assigned and notified for job:", id, "Message ID:", messageId);
         
         // Update ticket status to scheduling after successful vendor notification
-        if (ticket?.id) {
-          try {
-            const { error: updateError } = await supabase
-              .from("tickets")
-              .update({ status: "scheduling" })
-              .eq("id", ticket.id);
-            
-            if (updateError) {
-              console.error("Failed to update ticket status:", updateError);
-              toast.error("Vendor notified but failed to update ticket status");
-            } else {
-              toast.success("Ticket moved to scheduling status");
-            }
-          } catch (statusError) {
-            console.error("Error updating ticket status:", statusError);
-          }
-        }
+        await updateTicketStatus(ticket.id, "scheduling");
+        
+        // Invalidate and refetch queries to update UI immediately
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["ticket", id] }),
+          queryClient.invalidateQueries({ queryKey: ["tickets"] })
+        ]);
+        
+        // Success - message has been sent and ticket updated
+        toast.success("Vendor assigned and ticket moved to scheduling!", { id: "vendor-notification" });
         
         // Reset modal state
         setIsVendorModalOpen(false);
         setSelectedCompany("");
         setSearchVendor("");
         setUseRecommendedVendor(true);
+        
       } catch (error) {
-        console.error("Failed to send WhatsApp message:", error);
-        toast.error("Failed to send notification to vendor. Please try again.", { id: "vendor-notification" });
+        console.error("Failed to assign vendor:", error);
+        toast.error("Failed to assign vendor. Please try again.", { id: "vendor-notification" });
       } finally {
         setIsSending(false);
       }
