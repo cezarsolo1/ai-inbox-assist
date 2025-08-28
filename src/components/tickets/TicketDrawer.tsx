@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { updateTicketStatus } from "@/hooks/useTickets";
 import type { Ticket } from "@/hooks/useTickets";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface TicketDrawerProps {
   ticket: Ticket | null;

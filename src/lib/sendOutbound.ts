@@ -13,7 +13,7 @@ export async function sendWhatsAppReply({
   media?: string[];
   threadId?: string;
   tenantId?: string;
-}) {
+}): Promise<string | undefined> {
   // 2) post to Make first - don't save to database until confirmed sent
   const payload = {
     channel: "whatsapp",
@@ -48,21 +48,30 @@ export async function sendWhatsAppReply({
     }
 
     // 1) Only insert to database AFTER successful send to Make
-    const { data, error } = await supabase
-      .from("outbound_messages")
-      .insert([{
-        channel: "whatsapp",
-        to_msisdn: to.replace(/^whatsapp:/, "").replace(/^\+?/, "+"),
-        from_msisdn: TWILIO_WA_NUMBER.replace(/^whatsapp:/, "").replace(/^\+?/, "+"),
-        body: text,
-        media,
-        status: "sent" // Mark as sent immediately since Make call succeeded
-      }])
-      .select("id")
-      .single();
-    
-    if (error) throw error;
-    messageId = data.id;
+    try {
+      const { data, error } = await supabase
+        .from("outbound_messages")
+        .insert([{
+          channel: "whatsapp",
+          to_msisdn: to.replace(/^whatsapp:/, "").replace(/^\+?/, "+"),
+          from_msisdn: TWILIO_WA_NUMBER.replace(/^whatsapp:/, "").replace(/^\+?/, "+"),
+          body: text,
+          media,
+          status: "sent" // Mark as sent immediately since Make call succeeded
+        }])
+        .select("id")
+        .single();
+
+      if (error) {
+        console.warn("Outbound save failed (non-blocking):", error);
+        messageId = undefined as any;
+      } else {
+        messageId = data.id;
+      }
+    } catch (dbErr) {
+      console.warn("Outbound insert error (non-blocking):", dbErr);
+      messageId = undefined as any;
+    }
 
   } catch (fetchError) {
     console.error("Failed to send WhatsApp message:", fetchError);

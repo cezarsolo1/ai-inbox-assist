@@ -124,8 +124,21 @@ export default function TicketDetailPage() {
         
         // Update ticket status to scheduling after successful vendor notification
         await updateTicketStatus(ticket.id, "scheduling");
+
+        // Optimistically update caches for instant UI feedback
+        const newUpdatedAt = new Date().toISOString();
+        queryClient.setQueryData(['ticket', id], (old: any) =>
+          old ? { ...old, status: 'scheduling', updated_at: newUpdatedAt } : old
+        );
+        queryClient.setQueriesData({ queryKey: ['tickets'] }, (old: any) => {
+          if (!old) return old;
+          if (Array.isArray(old)) {
+            return old.map((t: any) => t.id === ticket.id ? { ...t, status: 'scheduling', updated_at: newUpdatedAt } : t);
+          }
+          return old;
+        });
         
-        // Invalidate and refetch queries to update UI immediately
+        // Invalidate and refetch queries to ensure server state is in sync
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["ticket", id] }),
           queryClient.invalidateQueries({ queryKey: ["tickets"] })
